@@ -1,0 +1,1 @@
+[26-Oct-2016 01:32:39 UTC] PHP Fatal error:  Cannot redeclare tribe_is_event() (previously declared in /home/joeross/public_html/dev/regionalvet/wp-content/themes/Avada/includes/class-avada-init.php:317) in /home/joeross/public_html/dev/regionalvet/wp-content/plugins/the-events-calendar/src/functions/template-tags/general.php on line 179
