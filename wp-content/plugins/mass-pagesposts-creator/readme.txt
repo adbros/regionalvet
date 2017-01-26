@@ -3,11 +3,11 @@ Plugin Name: Mass Pages/Posts Creator
 Plugin URI: http://multidots.com/
 Author: dots
 Author URI: http://multidots.com/
-Contributors: dots
-Stable tag: 1.1.3
+Contributors: dots, mayurk
+Stable tag: 1.1.4
 Tags: bulk, mass, multiple, amount, volume, quantity, posts, pages
 Requires at least: 3.8
-Tested up to: 4.6
+Tested up to: 4.7
 Donate link: 
 Copyright: (c) 2015-2016 Multidots Solutions PVT LTD (info@multidots.com) 
 License: GPLv3 or later
@@ -31,11 +31,18 @@ This plugin will include all attribute like status, parent page, template, type,
 
 = You can check our other plugins: =
 
-1. <a href ="http://codecanyon.net/item/advance-menu-manager/15275037?s_rank=1">Advance Menu Manager</a>
-2. <a href ="http://codecanyon.net/item/advance-flat-rate-shipping-method-for-woocommerce/15831725">Advance Flat Rate Shipping Method For WooCommerce</a>
-3. <a href ="http://codecanyon.net/item/advance-extra-cost-plugin-for-woocommerce/16351490">Advance Extra Cost Plugin for WooCommerce</a>
-4. <a href ="https://codecanyon.net/item/woocommerce-save-for-later/17421044?s_rank=2">Woocommerce Save For Later</a>
-5. <a href ="https://codecanyon.net/item/advanced-product-size-chart-for-woocommerce/17465337?s_rank=1">Advanced Product Size Chart for WooCommerce</a>
+1. <a href ="https://store.multidots.com/go/flat-rate">Advance Flat Rate Shipping Method For WooCommerce</a>
+2. <a href ="https://store.multidots.com/go/dotstore-woocommerce-blocker">WooCommerce Blocker – Prevent Fake Orders And Blacklist Fraud Customers</a>
+3. <a href ="https://store.multidots.com/go/dotstore-enhanced-ecommerce-tracking">WooCommerce Enhanced Ecommerce Analytics Integration With Conversion Tracking</a>
+4. <a href ="https://store.multidots.com/go/dotstore-woo-category-banner">Woocommerce Category Banner Management</a>
+5. <a href ="https://store.multidots.com/go/dotstore-woo-extra-fees">Woocommerce Conditional Extra Fees</a>
+6. <a href ="https://store.multidots.com/go/dotstore-woo-product-sizechart">Woocommerce Advanced Product Size Charts</a>
+7. <a href ="https://store.multidots.com/go/dotstore-admenumanager-wp">Advance Menu Manager for WordPress</a>
+8. <a href ="https://store.multidots.com/go/dotstore-woo-savefor-later">Woocommerce Save For Later Cart Enhancement</a>
+9. <a href ="https://store.multidots.com/go/brandagency">Brand Agency- One Page HTML Template For Agency,Startup And Business</a>
+10. <a href ="https://store.multidots.com/go/Meraki">Meraki One Page HTML Resume Template</a>
+11. <a href ="https://store.multidots.com/go/dotstore-aapify-theme">Appify - Multipurpose One Page Mobile App landing page HTML</a>
+
 
 == Installation ==
 
@@ -62,6 +69,8 @@ No, As default functionality you can assign parent to only pages.
 Automatic updates should work great for you.  As always, though, we recommend backing up your site prior to making any updates just to be sure nothing goes wrong.
 
 == Changelog ==
+= 1.1.4 - 24.12.2016 =
+* Compatible with WordPress Version 4.7
 
 = 1.1.3 - 30.8.2016 =
 Check  WordPress and WooCommerce compatibility

@@ -4,7 +4,7 @@ Plugin Name: Hitsteps Ultimate Web Analytics
 Plugin URI: https://www.hitsteps.com/
 Description: Hitsteps is a powerful real time website visitor manager, it allow you to view and interact with your visitors in real time.
 Author: hitsteps
-Version: 5.32
+Version: 5.34
 Author URI: http://www.hitsteps.com/
 */ 
 
@@ -532,9 +532,9 @@ $postaction='';
 	if ( $option['code']=='' && $postaction!='do' && $_REQUEST['hitmagic']!='do' ) {
 		function hitsteps_warning() {
 			echo "
-			<div id='hitsteps-warning' class='updated fade'><p><strong>".__('Hitsteps Analytics is almost ready.','hitsteps-visitor-manager')."</strong> ".sprintf(__('You must <a href="%1$s">enter your hitsteps API key</a> to start tracking your stats.','hitsteps-visitor-manager'), "options-general.php?page=hitsteps-visitor-manager/hitsteps.php")."</p></div>
+			<div id='hitsteps-warning' class='updated fade'><p><strong>".__('Get to know Hitsteps Analytics.','hitsteps-visitor-manager')."</strong> ".sprintf(__('You must <a href="%1$s">enter your hitsteps API key</a> to start tracking your visitors, get detailed report of every single visitors, watch them live, get notification when they visit, and receive list of pages they visit included in messages they send to you via contact forms.','hitsteps-visitor-manager'), "options-general.php?page=hitsteps-visitor-manager/hitsteps.php")."</p></div>
 			
-			<script type=\"text/javascript\">setTimeout(function(){jQuery('#hitsteps-warning').slideUp('slow');}, 11000);</script>
+			<script type=\"text/javascript\">setTimeout(function(){jQuery('#hitsteps-warning').slideUp('slow');}, 30000);</script>
 
 			";
 

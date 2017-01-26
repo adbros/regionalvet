@@ -3,7 +3,7 @@
  * Plugin Name:       Coming Soon Page & Maintenance Mode by SeedProd
  * Plugin URI:        http://www.seedprod.com
  * Description:       The #1 Coming Soon Page, Under Construction & Maintenance Mode plugin for WordPress.
- * Version:           5.0.5
+ * Version:           5.0.6
  * Author:            SeedProd
  * Author URI:        http://www.seedprod.com
  * Text Domain:       coming-soon
@@ -86,21 +86,24 @@ function seed_csp4_welcome_screen_do_activation_redirect() {
 // Global
 global $seed_csp4_settings;
 
-require_once( 'framework/get-settings.php' );
+require_once( SEED_CSP4_PLUGIN_PATH.'framework/get-settings.php' );
 $seed_csp4_settings = seed_csp4_get_settings();
 
-require_once( 'inc/class-seed-csp4.php' );
+require_once( SEED_CSP4_PLUGIN_PATH.'inc/class-seed-csp4.php' );
 add_action( 'plugins_loaded', array( 'SEED_CSP4', 'get_instance' ) );
 
 if( is_admin() ) {
 // Admin Only
-	require_once( 'inc/config-settings.php' );
-    require_once( 'framework/framework.php' );
+	  require_once( SEED_CSP4_PLUGIN_PATH.'inc/config-settings.php' );
+    require_once( SEED_CSP4_PLUGIN_PATH.'framework/framework.php' );
     add_action( 'plugins_loaded', array( 'SEED_CSP4_ADMIN', 'get_instance' ) );
+    require_once( SEED_CSP4_PLUGIN_PATH.'framework/review.php' );
 } else {
 // Public only
 
 }
+
+
 
 
 

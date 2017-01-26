@@ -140,7 +140,7 @@ function wpcf7_tg_pane_hitsteps_cf7( $type = 'hitsteps_cf7' ) {
 	
 	 $option=get_hst_conf();
 	 
-
+	if (!isset($hitsteps['code'])) $hitsteps['code']='';
 	 
 	if ($option['code']!=''){
 	if (round($_POST['_hs_post_data'])>0){

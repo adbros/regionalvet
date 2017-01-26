@@ -3,7 +3,7 @@
  * Plugin Name: HTTP / HTTPS Remover
  * Plugin URI: https://de.wordpress.org/plugins/http-https-remover/
  * Description: This Plugin removes HTTP and HTTPS protocols from all links.
- * Version: 1.2
+ * Version: 1.3.1
  * Author: Marius Bolik (CONDACORE)
  * Author URI: https://condacore.com/
  * License: GPLv3
@@ -71,11 +71,16 @@ class HTTP_HTTPS_REMOVER
 			$buffer = str_replace('src="https://' . $_SERVER['HTTP_HOST'], 'src="//' . $_SERVER['HTTP_HOST'], $buffer);
 			$buffer = str_replace('src=\'http://' . $_SERVER['HTTP_HOST'], 'src=\'//' . $_SERVER['HTTP_HOST'], $buffer);
 			$buffer = str_replace('src="http://' . $_SERVER['HTTP_HOST'], 'src="//' . $_SERVER['HTTP_HOST'], $buffer);
+			// srcset
+			$buffer = str_replace('srcset=\'https://' . $_SERVER['HTTP_HOST'], 'srcset=\'//' . $_SERVER['HTTP_HOST'], $buffer);
+			$buffer = str_replace('srcset="https://' . $_SERVER['HTTP_HOST'], 'srcset="//' . $_SERVER['HTTP_HOST'], $buffer);
+			$buffer = str_replace('srcset=\'http://' . $_SERVER['HTTP_HOST'], 'srcset=\'//' . $_SERVER['HTTP_HOST'], $buffer);
+			$buffer = str_replace('srcset="http://' . $_SERVER['HTTP_HOST'], 'srcset="//' . $_SERVER['HTTP_HOST'], $buffer);
 			// content
-			$buffer = str_replace('content=\'https://' . $_SERVER['HTTP_HOST'], 'content=\'//' . $_SERVER['HTTP_HOST'], $buffer);
-			$buffer = str_replace('content="https://' . $_SERVER['HTTP_HOST'], 'content="//' . $_SERVER['HTTP_HOST'], $buffer);
-			$buffer = str_replace('content=\'http://' . $_SERVER['HTTP_HOST'], 'content=\'//' . $_SERVER['HTTP_HOST'], $buffer);
-			$buffer = str_replace('content="http://' . $_SERVER['HTTP_HOST'], 'content="//' . $_SERVER['HTTP_HOST'], $buffer);
+			$buffer = str_replace('content=\'//' . $_SERVER['HTTP_HOST'], 'content=\'https://' . $_SERVER['HTTP_HOST'], $buffer);
+			$buffer = str_replace('content="//' . $_SERVER['HTTP_HOST'], 'content="https://' . $_SERVER['HTTP_HOST'], $buffer);
+			$buffer = str_replace('content=\'http://' . $_SERVER['HTTP_HOST'], 'content=\'https://' . $_SERVER['HTTP_HOST'], $buffer);
+			$buffer = str_replace('content="http://' . $_SERVER['HTTP_HOST'], 'content="https://' . $_SERVER['HTTP_HOST'], $buffer);
 			// url
 			$buffer = str_replace('url(\'https://' . $_SERVER['HTTP_HOST'], 'url(\'//' . $_SERVER['HTTP_HOST'], $buffer);
 			$buffer = str_replace('url("https://' . $_SERVER['HTTP_HOST'], 'url("//' . $_SERVER['HTTP_HOST'], $buffer);

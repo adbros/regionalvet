@@ -4,7 +4,7 @@ Donate link: https://www.paypal.me/MariusBolik
 Tags: http, https, mixed content
 Requires at least: 1.2.0
 Tested up to: 4.7
-Stable tag: 1.2
+Stable tag: 1.3.1
 License: GPLv3
 License URI: http://www.gnu.org/licenses/gpl-3.0.html
 
@@ -66,6 +66,10 @@ Please purge/clear cache for the changes to take effect!
 1. The Sourcecode of the Website will look like this!
 
 == Changelog ==
+= 1.3.1 (01/13/17) =
+* Added support for srcset tag
+= 1.3 (01/07/17) =
+* Fixed the issue that Twitter card image is not displayed
 = 1.2 (12/11/16) =
 * Added support for Google (Fonts, Ajax, Maps etc.)
 * Compatibility for Wordpress 4.7

@@ -3,7 +3,7 @@
 Plugin Name: Mass Pages/Posts Creator
 Plugin URI: http://www.multidots.com/
 Description: Mass Pages/Posts Creator is a plugin which provide a simplest interface by which user can create multiple Pages/Posts at a time.
-Version: 1.1.3
+Version: 1.1.4
 Author: dots
 Author URI: http://www.multidots.com/
 */
@@ -498,6 +498,7 @@ function mpc_create() {
 add_action( 'wp_ajax_add_plugin_user_mppc', 'wp_add_plugin_userfn' );
 add_action( 'wp_ajax_hide_subscribe_mppc', 'hide_subscribe_mppcfn' );
 
+if(! function_exists(wp_add_plugin_userfn)){
 function wp_add_plugin_userfn() {
 
 	$email_id= $_POST['email_id'];
@@ -513,9 +514,8 @@ function wp_add_plugin_userfn() {
 		'body' => array('user'=>array('user_email'=>$email_id,'plugin_site' => $log_url,'status' => 1,'plugin_id' => '9','activation_date'=>$cur_date)),
 		'cookies' => array()));
 	update_option('mppc_plugin_notice_shown', 'true');
-
 }
-
+}
 function hide_subscribe_mppcfn() {
 	$email_id= $_POST['email_id'];
 	update_option('mppc_plugin_notice_shown', 'true');
