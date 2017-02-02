@@ -1,9 +1,9 @@
 === Hitsteps Ultimate Web Analytics ===
 Contributors: hitsteps
-Tags: analytics, stats, statistics, chat, live, stat, visitor, visit, heatmap, support, online, visitors, tracking, track, tracker, activity,  seo, counter, analytic, web, jetpack, map, clicky, statcounter, woopra, live chat
+Tags: analytics, stats, statistics, chat, live, stat, visitor, monitor, heatmap, visitors, track, counter
 Requires at least: 2.7
-Tested up to: 4.7.1
-Stable tag: 5.34
+Tested up to: 4.7.2
+Stable tag: 5.35
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 Donate link: http://www.hitsteps.com/features.php#price
@@ -16,7 +16,7 @@ Hitsteps Analytics is a powerful real time visitor management and live chat tool
 It allows you to view your visitors stream and follow each visitors to know more about each pages they see. It allow you to engage with your visitors using live chat tool. You'll be provided with detailed information about each visitor such as geolocation, their first visit on your site, referer to your site, their browser, OS and device and much more!
 Advantages over Google analytics includes but not limited to Detailed information of each and all visitors, ability to engage with visitors using live chat tool, heatmap for each pages, carefully pre-generated and categorized reports, real-time analytics on all reports and much more...
 
-Visitor aliasing enables you to detect if same (registered user) login back to your website again using another device (another pc, mobile or tablet). What if a user click on your ads on pc and register to your website but don't make any purchase, however this same user login back to your website from another device and complete purchase? Most web analytics would tell you he is a new user! Hitsteps detect if same user login again, and merge new browsing session with previous session making a unique timeline. We also identify user in hitsteps with same nickname they used to register in your website to make it easier for you to identify it.
+Visitor aliasing enables you to detect if same (registered user) login back to your website again using another device (another pc, mobile or tablet). What if a user click on your ads on pc and register to your website but don't make any purchase, however this same user login back to your website from another device and complete purchase? Most web analytics would tell you he is a new user! Hitsteps detect if same user login again, and merge new browsing session with previous session making a unique timeline. We also identify user in Hitsteps with same nickname they used to register in your website to make it easier for you to identify it.
 
 New generation heatmap, Page Analysis: It allows you to view exactly which item in your page, menu, sub menu, carousels or slideshows is attracting and getting how many clicks. View some screenshots in screenshot tab of this plugin.
 
