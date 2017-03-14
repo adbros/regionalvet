@@ -30,22 +30,23 @@ var FusionPageBuilder = FusionPageBuilder || {};
 
 			cloneElement: function( event ) {
 
-				var elementAttributes;
+				var elementAttributes,
+					titleLabel = this.$el.find( '.multi-element-child-name' ).html();
 
 				if ( event ) {
 					event.preventDefault();
 				}
 
-				elementAttributes         = $.extend( true, {}, this.model.attributes );
-				elementAttributes.created = 'manually';
-				elementAttributes.cid     = FusionPageBuilderViewManager.generateCid();
+				elementAttributes               = $.extend( true, {}, this.model.attributes );
+				elementAttributes.created       = 'manually';
+				elementAttributes.cid           = FusionPageBuilderViewManager.generateCid();
+				elementAttributes.cloned        = true;
+				elementAttributes.targetElement = this.$el;
+				elementAttributes.titleLabel    = titleLabel;
 
 				FusionPageBuilderApp.collection.add( elementAttributes );
 
 				FusionPageBuilderEvents.trigger( 'fusion-multi-element-edited' );
-
-				// Clone exact tab title being used.
-				jQuery( event.target ).parents( 'ul' ).find( 'li:last-child .multi-element-child-name' ).text( jQuery( event.target ).parents( 'li' ).find( '.multi-element-child-name' ).text() );
 			},
 
 			showSettings: function( event ) {

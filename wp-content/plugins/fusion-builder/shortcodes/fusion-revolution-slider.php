@@ -11,7 +11,7 @@ function fusion_element_revolution_slider() {
 		'name'       => esc_attr__( 'Revolution Slider', 'fusion-builder' ),
 		'shortcode'  => 'rev_slider',
 		'icon'       => 'fusiona-air',
-		'preview'    => FUSION_BUILDER_PLUGIN_DIR . 'js/previews/fusion-revolution-slider-preview.php',
+		'preview'    => FUSION_BUILDER_PLUGIN_DIR . 'inc/templates/previews/fusion-revolution-slider-preview.php',
 		'preview_id' => 'fusion-builder-block-module-revolution-slider-preview-template',
 		'params'     => array(
 			array(

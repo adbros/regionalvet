@@ -112,6 +112,11 @@ var FusionPageBuilder = FusionPageBuilder || {};
 					event.preventDefault();
 				}
 
+				if ( true === FusionPageBuilderApp.layoutIsSaving ) {
+					return;
+				}
+				FusionPageBuilderApp.layoutIsSaving = true;
+
 				if ( '' !== elementName ) {
 
 					$.ajax( {
@@ -127,6 +132,7 @@ var FusionPageBuilder = FusionPageBuilder || {};
 							fusion_layout_new_cat: 'columns'
 						},
 						complete: function( data ) {
+							FusionPageBuilderApp.layoutIsSaving = false;
 							layoutsContainer.prepend( data.responseText );
 							$( '.fusion-save-element-fields' ).remove();
 							emptyMessage.hide();
@@ -353,9 +359,10 @@ var FusionPageBuilder = FusionPageBuilder || {};
 					event.preventDefault();
 				}
 
-				columnAttributes.created = 'manually';
-				columnAttributes.cid     = FusionPageBuilderViewManager.generateCid();
+				columnAttributes.created       = 'manually';
+				columnAttributes.cid           = FusionPageBuilderViewManager.generateCid();
 				columnAttributes.targetElement = this.$el;
+				columnAttributes.cloned        = true;
 
 				FusionPageBuilderApp.collection.add( columnAttributes );
 

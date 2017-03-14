@@ -17,16 +17,16 @@ if ( ! defined( 'WP_LOAD_IMPORTERS' ) )
 define( 'IMPORT_DEBUG', false );
 
 // Load Importer API
-require_once ABSPATH . 'wp-admin/includes/import.php';
+require_once wp_normalize_path( ABSPATH . '/wp-admin/includes/import.php' );
 
 if ( ! class_exists( 'WP_Importer' ) ) {
-	$class_wp_importer = ABSPATH . 'wp-admin/includes/class-wp-importer.php';
+	$class_wp_importer = wp_normalize_path( ABSPATH . '/wp-admin/includes/class-wp-importer.php' );
 	if ( file_exists( $class_wp_importer ) )
 		require $class_wp_importer;
 }
 
 // include WXR file parsers
-require dirname( __FILE__ ) . '/parsers.php';
+require wp_normalize_path( dirname( __FILE__ ) . '/parsers.php' );
 
 /**
  * WordPress Importer class for managing the import process of a WXR file

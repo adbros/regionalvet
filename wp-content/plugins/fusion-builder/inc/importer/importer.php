@@ -19,12 +19,12 @@ function fusion_builder_importer() {
 
             // if main importer class doesn't exist
             if ( ! class_exists( 'WP_Importer' ) ) {
-                $wp_importer = ABSPATH . 'wp-admin/includes/class-wp-importer.php';
+                $wp_importer = wp_normalize_path( ABSPATH . '/wp-admin/includes/class-wp-importer.php' );
                 include $wp_importer;
             }
 
             if ( ! class_exists( 'WP_Import' ) ) {
-                $wp_import = FUSION_BUILDER_PLUGIN_DIR . 'inc/importer/wordpress-importer.php';
+                $wp_import = wp_normalize_path( FUSION_BUILDER_PLUGIN_DIR . '/inc/importer/wordpress-importer.php' );
                 include $wp_import;
             }
 
@@ -70,7 +70,7 @@ function fusion_export_xml() {
                 if ( current_user_can( 'export' ) ) {
 
                     /** Load WordPress export API */
-                    require_once( ABSPATH . 'wp-admin/includes/export.php' );
+                    require_once wp_normalize_path( ABSPATH . 'wp-admin/includes/export.php' );
 
                     $args = array( 'content' => $post_type );
                     export_wp( $args );

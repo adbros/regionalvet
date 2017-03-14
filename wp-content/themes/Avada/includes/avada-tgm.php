@@ -1,4 +1,13 @@
 <?php
+/**
+ * Plugins for TGM usage.
+ *
+ * @author     ThemeFusion
+ * @copyright  (c) Copyright by ThemeFusion
+ * @link       http://theme-fusion.com
+ * @package    Avada
+ * @subpackage Core
+ */
 
 // Do not allow directly accessing this file.
 if ( ! defined( 'ABSPATH' ) ) {
@@ -17,7 +26,7 @@ function avada_register_required_plugins() {
 	$is_plugins_page = false;
 	if ( ( isset( $_GET['page'] ) && 'avada-plugins' === $_GET['page'] ) ||
 		 ( isset( $_GET['page'] ) && 'install-required-plugins' === $_GET['page'] ) ||
-	 	 ( isset( $_SERVER['HTTP_REFERER'] ) && false !== strpos( $_SERVER['HTTP_REFERER'], 'HTTP_REFERER' ) )
+		 ( isset( $_SERVER['HTTP_REFERER'] ) && false !== strpos( esc_url_raw( wp_unslash( $_SERVER['HTTP_REFERER'] ) ), 'HTTP_REFERER' ) )
 	) {
 		$is_plugins_page = true;
 	}
@@ -33,7 +42,7 @@ function avada_register_required_plugins() {
 		array(
 			'name'               => $bundled_plugins['fusion_core']['name'],
 			'slug'               => $bundled_plugins['fusion_core']['slug'],
-			'source'             => Avada::$template_dir_path . '/includes/plugins/fusion-core.zip',
+			'source'             => ( $is_plugins_page ) ? Avada()->remote_install->get_package( 'Fusion Core' ) : 'bundled',
 			'required'           => true,
 			'version'            => $bundled_plugins['fusion_core']['version'],
 			'force_activation'   => false,
@@ -44,7 +53,7 @@ function avada_register_required_plugins() {
 		array(
 			'name'               => $bundled_plugins['fusion_builder']['name'],
 			'slug'               => $bundled_plugins['fusion_builder']['slug'],
-			'source'             => Avada::$template_dir_path . '/includes/plugins/fusion-builder.zip',
+			'source'             => ( $is_plugins_page ) ? Avada()->remote_install->get_package( 'Fusion Builder' ) : 'bundled',
 			'required'           => true,
 			'version'            => $bundled_plugins['fusion_builder']['version'],
 			'force_activation'   => false,
@@ -55,7 +64,7 @@ function avada_register_required_plugins() {
 		array(
 			'name'               => $bundled_plugins['layer_slider']['name'],
 			'slug'               => $bundled_plugins['layer_slider']['slug'],
-			'source'             => ( $is_plugins_page ) ? Avada()->remote_install->get_package( 'LayerSlider WP' ) : '',
+			'source'             => ( $is_plugins_page ) ? Avada()->remote_install->get_package( 'LayerSlider WP' ) : 'bundled',
 			'required'           => false,
 			'version'            => $bundled_plugins['layer_slider']['version'],
 			'force_activation'   => false,
@@ -66,7 +75,7 @@ function avada_register_required_plugins() {
 		array(
 			'name'               => $bundled_plugins['slider_revolution']['name'],
 			'slug'               => $bundled_plugins['slider_revolution']['slug'],
-			'source'             => ( $is_plugins_page ) ? Avada()->remote_install->get_package( 'Revolution Slider' ) : '',
+			'source'             => ( $is_plugins_page ) ? Avada()->remote_install->get_package( 'Revolution Slider' ) : 'bundled',
 			'required'           => false,
 			'version'            => $bundled_plugins['slider_revolution']['version'],
 			'force_activation'   => false,
@@ -119,15 +128,16 @@ function avada_register_required_plugins() {
 		'is_automatic'    	=> true,
 		'message'         	=> '',
 		'strings'         	=> array(
-			// @codingStandardsIgnoreStart
 			'page_title'                      => __( 'Install/Update Required Plugins', 'Avada' ),
 			'menu_title'                      => __( 'Install Plugins', 'Avada' ),
 			'installing'                      => __( 'Installing Plugin: %s', 'Avada' ), // %1$s = plugin name
 			'oops'                            => __( 'Something went wrong with the plugin API.', 'Avada' ),
 			'notice_can_install_required'     => _n_noop( 'Avada requires the following plugin installed: %1$s.', 'Avada requires the following plugins installed: %1$s.', 'Avada' ), // %1$s = plugin name(s)
+			// @codingStandardsIgnoreLine
 			'notice_can_install_recommended'  => _n_noop( str_replace( '{{system-status}}', admin_url( 'admin.php?page=avada-system-status' ), 'This theme recommends the following plugin installed or updated: %1$s.<br />IMPORTANT: If your hosting plan has low resources, activating additional plugins can lead to fatal "out of memory" errors. We recommend at least 128MB of memory. Check your resources on the <a href="{{system-status}}" target="_self">System Status</a> tab.' ), str_replace( '{{system-status}}', admin_url( 'admin.php?page=avada-system-status' ), 'This theme recommends the following plugins installed or updated: %1$s.<br />IMPORTANT: If your hosting plan has low resources, activating additional plugins can lead to fatal "out of memory" errors. We recommend at least 128MB of memory. Check your resources on the <a href="{{system-status}}" target="_self">System Status</a> tab.' ), 'Avada' ), // %1$s = plugin name(s)
 			'notice_cannot_install'           => _n_noop( 'Sorry, but you do not have the correct permissions to install the %s plugin. Contact the administrator of this site for help on getting the plugin installed.', 'Sorry, but you do not have the correct permissions to install the %s plugins. Contact the administrator of this site for help on getting the plugins installed.', 'Avada' ), // %1$s = plugin name(s)
 			'notice_can_activate_required'    => _n_noop( 'The following required plugin is currently inactive: %1$s.', 'The following required plugins are currently inactive: %1$s.', 'Avada' ), // %1$s = plugin name(s)
+			// @codingStandardsIgnoreLine
 			'notice_can_activate_recommended' => _n_noop( str_replace( '{{system-status}}', admin_url( 'admin.php?page=avada-system-status' ), 'The following recommended plugin is currently inactive: %1$s.<br />IMPORTANT: If your hosting plan has low resources, activating additional plugins can lead to fatal "out of memory" errors. We recommend at least 128MB of memory. Check your resources on the <a href="{{system-status}}" target="_self">System Status</a> tab.' ), str_replace( '{{system-status}}', admin_url( 'admin.php?page=avada-system-status' ), 'The following recommended plugins are currently inactive: %1$s.<br />IMPORTANT: If your hosting plan has low resources, activating additional plugins can lead to fatal "out of memory" errors. We recommend at least 128MB of memory. Check your resources on the <a href="{{system-status}}" target="_self">System Status</a> tab.' ), 'Avada' ), // %1$s = plugin name(s)
 			'notice_cannot_activate'          => _n_noop( 'Sorry, but you do not have the correct permissions to activate the %s plugin. Contact the administrator of this site for help on getting the plugin activated.', 'Sorry, but you do not have the correct permissions to activate the %s plugins. Contact the administrator of this site for help on getting the plugins activated.', 'Avada' ), // %1$s = plugin name(s)
 			'notice_ask_to_update'            => _n_noop( 'The following plugin needs to be updated to ensure maximum compatibility with Avada: %1$s', 'The following plugins need to be updated to ensure maximum compatibility with Avada: %1$s', 'Avada' ), // %1$s = plugin name(s)
@@ -138,7 +148,6 @@ function avada_register_required_plugins() {
 			'plugin_activated'                => __( 'Plugin activated successfully.', 'Avada' ),
 			'complete'                        => __( 'All plugins installed and activated successfully. %s', 'Avada' ), // %1$s = dashboard link
 			'nag_type'                        => 'error',// Determines admin notice type - can only be 'updated' or 'error'
-			// @codingStandardsIgnoreEnd
 		),
 	);
 

@@ -1,4 +1,13 @@
 <?php
+/**
+ * Handles upgrades.
+ *
+ * @author     ThemeFusion
+ * @copyright  (c) Copyright by ThemeFusion
+ * @link       http://theme-fusion.com
+ * @package    Avada
+ * @subpackage Core
+ */
 
 // Do not allow directly accessing this file.
 if ( ! defined( 'ABSPATH' ) ) {
@@ -81,6 +90,8 @@ class Avada_Upgrade {
 	protected function __construct() {
 
 		$this->database_theme_version = get_option( 'avada_version', false );
+		$this->current_theme_version  = Avada::get_theme_version();
+		$this->current_theme_version  = Avada_Helper::normalize_version( $this->current_theme_version );
 
 		// Check if previous versions of avada are installed
 		// by checking the 'avada_version' setting.
@@ -108,6 +119,7 @@ class Avada_Upgrade {
 			'403' => array( '4.0.3', false ),
 			'500' => array( '5.0.0', true ),
 			'503' => array( '5.0.3', false ),
+			'510' => array( '5.1.0', false ),
 		);
 
 		$upgraded = false;
@@ -121,19 +133,19 @@ class Avada_Upgrade {
 				new $classname();
 			} elseif ( true === $version[1] ) {
 				// Instantiate the class if force-instantiation is set to true.
-				new $classname();
+				new $classname( true );
 			}
 		}
 
 		if ( true === $upgraded ) {
 			// If we run an upgrade then reset the dynamic-css.
-			update_option( 'avada_dynamic_css_posts', array() );
+			update_option( 'fusion_dynamic_css_posts', array() );
 
 			// If we updated Avada, reset the fusion-builder demo pages.
-			$this->delete_fusion_builder_demos();
+			Fusion_Builder_Demos_Importer::delete_demos();
 
 			// Make sure that we reset the patcher messages.
-			update_site_option( Avada_Patcher_Admin_Notices::$option_name, array() );
+			Fusion_Patcher_Admin_Notices::remove_messages_option();
 		}
 
 		/**
@@ -145,7 +157,6 @@ class Avada_Upgrade {
 		}
 
 		$this->previous_theme_versions = get_option( 'avada_previous_version', array() );
-		$this->current_theme_version   = Avada::get_theme_version();
 		$this->avada_options = get_option( Avada::get_option_name(), array() );
 
 		if ( is_array( $this->previous_theme_versions ) && ! empty( $this->previous_theme_versions ) ) {
@@ -158,7 +169,6 @@ class Avada_Upgrade {
 		// Make sure the theme version has 3 digits.
 		$this->previous_theme_version = Avada_Helper::normalize_version( $this->previous_theme_version );
 		$this->database_theme_version = Avada_Helper::normalize_version( $this->database_theme_version );
-		$this->current_theme_version  = Avada_Helper::normalize_version( $this->current_theme_version );
 
 		if ( empty( $this->avada_options ) ) {
 			// Fallback to previous options.
@@ -173,6 +183,7 @@ class Avada_Upgrade {
 		$action_method = ( empty( $this->avada_options ) ) ? 'fresh_installation' : 'update_installation';
 
 		add_action( 'init', array( $this, $action_method ) );
+
 	}
 
 	/**
@@ -252,7 +263,7 @@ class Avada_Upgrade {
 		}
 
 		// Show upgrade notices.
-		if ( version_compare( $this->current_theme_version, '4.0.0', '<' ) ) {
+		if ( version_compare( $this->current_theme_version, '5.1.0', '<=' ) ) {
 			add_action( 'admin_notices', array( $this, 'upgrade_notice' ) );
 		}
 	}
@@ -347,18 +358,21 @@ class Avada_Upgrade {
 				</ol>
 				<?php
 			}
-			if ( version_compare( $this->previous_theme_version, '4.0.0', '<' ) ) {
+			if ( version_compare( $this->previous_theme_version, '5.1.0', '<' ) ) {
 				?>
-				<p><strong>Please view the important update information for Avada 4.0:</strong></p>
+				<p><strong>Please view the important update information for Avada 5.1:</strong></p>
 
 				You can view all update information here: <a href="http://theme-fusion.com/avada-doc/install-update/important-update-information/" target="_blank" rel="noopener noreferrer">Important Update Information</a>
 				<?php
 			}
 			?>
+			<ol>
+				<li>WooCommerce 2.7 now offers a zoom feature for single product gallery. Specific steps must be taken for this to work. <a href="http://theme-fusion.com/avada-doc/woocommerce-single-product-gallery/" target="_blank">Click here for more information</a>.</li>
+			</ol>
 			<p>
 				<strong>
-					<a href="http://theme-fusion.com/avada-documentation/changelog.txt" class="view-changelog button-primary" target="_blank" rel="noopener noreferrer"><?php esc_attr_e( 'View Changelog', 'Avada' ); ?></a>
-					<a href="<?php echo esc_url( add_query_arg( 'avada_update_notice', '1' ) ); ?>" class="dismiss-notice button-secondary" style="margin:0 4px;"><?php esc_attr_e( 'Dismiss this notice', 'Avada' ); ?></a>
+					<a href="http://theme-fusion.com/avada-documentation/changelog.txt" class="view-changelog button-primary" style="margin-top:1em;" target="_blank" rel="noopener noreferrer"><?php esc_attr_e( 'View Changelog', 'Avada' ); ?></a>
+					<a href="<?php echo esc_url( add_query_arg( 'avada_update_notice', '1' ) ); ?>" class="dismiss-notice button-secondary" style="margin:1em 4px 0 4px;"><?php esc_attr_e( 'Dismiss this notice', 'Avada' ); ?></a>
 				</strong>
 			</p>
 			</div>
@@ -371,7 +385,7 @@ class Avada_Upgrade {
 	 */
 	public function notices_action() {
 		// Set update notice dismissal, so that the notice is no longer shown.
-		if ( isset( $_GET['avada_update_notice'] ) && $_GET['avada_update_notice'] ) {
+		if ( isset( $_GET['avada_update_notice'] ) && sanitize_key( wp_unslash( $_GET['avada_update_notice'] ) ) ) {
 			add_user_meta( $this->current_user->ID, 'avada_update_notice', '1', true );
 		}
 	}
@@ -419,7 +433,7 @@ class Avada_Upgrade {
 
 			delete_user_meta( $current_user->ID, 'avada_update_notice' );
 			delete_option( 'avada_version' );
-			update_option( 'avada_version', '3.9' );
+			update_option( 'avada_version', '5.1' );
 			delete_option( 'avada_previous_version' );
 			delete_option( Avada::get_option_name() );
 
@@ -434,23 +448,6 @@ class Avada_Upgrade {
 		return;
 	}
 
-	/**
-	 * Delete FB demos.
-	 * They will be re-downloaded the next time they're needed.
-	 *
-	 * @access public
-	 * @since 5.0.4
-	 */
-	public function delete_fusion_builder_demos() {
-		$wp_upload_dir = wp_upload_dir();
-		$basedir       = $wp_upload_dir['basedir'];
-		$dir           = wp_normalize_path( $basedir . '/fusion-builder-avada-pages' );
-
-		// initialize the WordPress Filesystem.
-		$filesystem = Avada_Helper::init_filesystem();
-		// Recursively delete the folder.
-		return $filesystem->delete( $dir, true );
-	}
 }
 
 /* Omit closing PHP tag to avoid "Headers already sent" issues. */

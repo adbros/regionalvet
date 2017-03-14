@@ -136,7 +136,7 @@ if ( !class_exists('Inbound_Shortcodes_Fields') ) {
 						case 'select' :
 							$output	= $row_start;
 							$output .= '<select name="'. $key .'" id="'.$key.'" class="inbound-shortcodes-input select inbound-shortcodes-select">';
-							if ( isset( $option['options'] ) ) {
+							if ( isset( $option['options']) && is_array($option['options'])  ) {
 								foreach( $option['options'] as $val => $opt ) {
 									$selected = ($std == $val) ? ' selected="selected"' : '';
 									$output .= '<option'. $selected .' value="'. $val .'">'. $opt .'</option>';
@@ -170,6 +170,17 @@ if ( !class_exists('Inbound_Shortcodes_Fields') ) {
 							}
 							$output .='</select></li>';
 							$output .='<li><input type="button" value="Add New Lead List" class="button button-primary" data-wp-lists="add:listchecklist:list-add" id="list-add-submit"></li></ul><span id="list-ajax-response"></span></div></div>';
+							$output .= $row_end;
+							$this->append_output($output);
+							break;
+						case 'leadtags' :
+							$output	= $row_start;
+							$output .= '<select multiple name="'. $key .'" id="'.$key.'" class="inbound-shortcodes-input select inbound-shortcodes-select">';
+							foreach( $option['options'] as $val => $opt ) {
+								$selected = ($std == $val) ? ' selected="selected"' : '';
+								$output .= '<option'. $selected .' value="'. $val .'">'. $opt .'</option>';
+							}
+							$output .= '</select>';
 							$output .= $row_end;
 							$this->append_output($output);
 							break;

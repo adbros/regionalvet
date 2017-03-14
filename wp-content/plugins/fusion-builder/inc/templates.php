@@ -41,6 +41,7 @@ function fusion_pagebuilder_meta_box() {
 	include wp_normalize_path( FUSION_BUILDER_PLUGIN_DIR . '/inc/templates/generator-elements.php' );
 	include wp_normalize_path( FUSION_BUILDER_PLUGIN_DIR . '/inc/templates/element.php' );
 	include wp_normalize_path( FUSION_BUILDER_PLUGIN_DIR . '/inc/templates/element-settings.php' );
+	include wp_normalize_path( FUSION_BUILDER_PLUGIN_DIR . '/inc/templates/next-page.php' );
 
 	do_action( 'fusion_builder_after' );
 }
@@ -98,16 +99,30 @@ function fusion_element_options_loop( $params ) {
 						'tinymce',
 						'iconpicker',
 						'multiple_select',
+						'multiple_upload',
 						'checkbox_button_set',
 						'radio_button_set',
+						'radio_image_set',
+						'link_selector',
+						'date_time_picker',
+						'upload_images',
 						'dimension',
 						'code',
 					);
 					?>
-					<?php foreach ( $field_types as $field_type ) : ?>
+					<?php
+						$fields = apply_filters( 'fusion_builder_fields', $field_types );
+					?>
+					<?php foreach ( $fields as $field_type ) : ?>
+						<?php if ( is_array( $field_type ) && ! empty( $field_type ) ) : ?>
+							<# if ( '<?php echo $field_type[0]; ?>' == param.type ) { #>
+							<?php include wp_normalize_path( $field_type[1] ); ?>
+							<# }; #>
+						<?php else : ?>
 						<# if ( '<?php echo $field_type; ?>' == param.type ) { #>
 							<?php include wp_normalize_path( FUSION_BUILDER_PLUGIN_DIR . '/inc/templates/options/' . $field_type . '.php' ); ?>
 						<# }; #>
+						<?php endif; ?>
 					<?php endforeach; ?>
 				</div>
 			</li>

@@ -11,7 +11,6 @@ if ( ! defined( 'ABSPATH' ) ) exit; // Exit if accessed directly
 
 global $woocommerce_loop;
 
-
 // Reset according to sidebar or fullwidth pages
 if ( empty( $woocommerce_loop['columns'] ) ) {
 	if ( is_shop() || is_product_category() || is_product_tag() || is_tax() ) {

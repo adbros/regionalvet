@@ -312,9 +312,9 @@
 					column.removeColumn();
 				} );
 
-				this.model.destroy();
-
 				FusionPageBuilderViewManager.removeView( this.model.get( 'cid' ) );
+
+				this.model.destroy();
 
 				this.remove();
 

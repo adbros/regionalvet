@@ -1,12 +1,22 @@
 <?php
+/**
+ * Mobile modern menu template.
+ *
+ * @author     ThemeFusion
+ * @copyright  (c) Copyright by ThemeFusion
+ * @link       http://theme-fusion.com
+ * @package    Avada
+ * @subpackage Core
+ */
 
 // Do not allow directly accessing this file.
 if ( ! defined( 'ABSPATH' ) ) {
 	exit( 'Direct script access denied.' );
 }
-$c_page_id = Avada()->get_page_id();
+$c_page_id = Avada()->fusion_library->get_page_id();
+$displayed_menu = get_post_meta( $c_page_id, 'pyre_displayed_menu', true );
 ?>
-<?php if ( 'modern' == Avada()->settings->get( 'mobile_menu_design' ) && ( has_nav_menu( 'main_navigation' ) || ( get_post_meta( $c_page_id, 'pyre_displayed_menu', true ) && '' !== get_post_meta( $c_page_id, 'pyre_displayed_menu', true ) && 'default' !== get_post_meta( $c_page_id, 'pyre_displayed_menu', true ) ) ) ) : ?>
+<?php if ( 'modern' == Avada()->settings->get( 'mobile_menu_design' ) && ( has_nav_menu( 'main_navigation' ) || ( $displayed_menu && '' !== $displayed_menu && 'default' !== $displayed_menu ) ) ) : ?>
 	<?php $header_content_3 = Avada()->settings->get( 'header_v4_content' ); ?>
 	<div class="fusion-mobile-menu-icons">
 		<?php // Make sure mobile menu toggle is not loaded when ubermenu is used. ?>
@@ -19,7 +29,7 @@ $c_page_id = Avada()->get_page_id();
 		<?php endif; ?>
 
 		<?php if ( class_exists( 'WooCommerce' ) && Avada()->settings->get( 'woocommerce_cart_link_main_nav' ) ) : ?>
-			<a href="<?php echo get_permalink( get_option( 'woocommerce_cart_page_id' ) ); ?>" class="fusion-icon fusion-icon-shopping-cart"></a>
+			<a href="<?php echo esc_url_raw( get_permalink( get_option( 'woocommerce_cart_page_id' ) ) ); ?>" class="fusion-icon fusion-icon-shopping-cart"></a>
 		<?php endif; ?>
 	</div>
 <?php endif;

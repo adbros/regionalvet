@@ -2,9 +2,9 @@
 /**
  * Plugin Name: HTTP / HTTPS Remover
  * Plugin URI: https://de.wordpress.org/plugins/http-https-remover/
- * Description: This Plugin removes HTTP and HTTPS protocols from all links.
- * Version: 1.3.1
- * Author: Marius Bolik (CONDACORE)
+ * Description: I changed the way how „HTTP / HTTPS Remover“ is working. It doesn’t remove http and https from links in source code anymore. Now it converts all links to https!
+ * Version: 1.4
+ * Author: CONDACORE
  * Author URI: https://condacore.com/
  * License: GPLv3
  */
@@ -23,12 +23,17 @@ if (!defined('ABSPATH')) exit;
 class HTTP_HTTPS_REMOVER
 
 {
+	
+	
+	//Add some links on the plugin page
+
 	// ###########################################
 	// ##### Apply Plugin on the whole Site ######
 	// ###########################################
 	public function __construct()
 
 	{
+		
 		add_action('wp_loaded', array(
 			$this,
 			'letsGo'
@@ -61,47 +66,76 @@ class HTTP_HTTPS_REMOVER
 			// ###############################
 			// ##### The important Path ######
 			// ###############################
-			// href
-			$buffer = str_replace('href=\'https://' . $_SERVER['HTTP_HOST'], 'href=\'//' . $_SERVER['HTTP_HOST'], $buffer);
-			$buffer = str_replace('href="https://' . $_SERVER['HTTP_HOST'], 'href="//' . $_SERVER['HTTP_HOST'], $buffer);
-			$buffer = str_replace('href=\'http://' . $_SERVER['HTTP_HOST'], 'href=\'//' . $_SERVER['HTTP_HOST'], $buffer);
-			$buffer = str_replace('href="http://' . $_SERVER['HTTP_HOST'], 'href="//' . $_SERVER['HTTP_HOST'], $buffer);
-			// src
-			$buffer = str_replace('src=\'https://' . $_SERVER['HTTP_HOST'], 'src=\'//' . $_SERVER['HTTP_HOST'], $buffer);
-			$buffer = str_replace('src="https://' . $_SERVER['HTTP_HOST'], 'src="//' . $_SERVER['HTTP_HOST'], $buffer);
-			$buffer = str_replace('src=\'http://' . $_SERVER['HTTP_HOST'], 'src=\'//' . $_SERVER['HTTP_HOST'], $buffer);
-			$buffer = str_replace('src="http://' . $_SERVER['HTTP_HOST'], 'src="//' . $_SERVER['HTTP_HOST'], $buffer);
-			// srcset
-			$buffer = str_replace('srcset=\'https://' . $_SERVER['HTTP_HOST'], 'srcset=\'//' . $_SERVER['HTTP_HOST'], $buffer);
-			$buffer = str_replace('srcset="https://' . $_SERVER['HTTP_HOST'], 'srcset="//' . $_SERVER['HTTP_HOST'], $buffer);
-			$buffer = str_replace('srcset=\'http://' . $_SERVER['HTTP_HOST'], 'srcset=\'//' . $_SERVER['HTTP_HOST'], $buffer);
-			$buffer = str_replace('srcset="http://' . $_SERVER['HTTP_HOST'], 'srcset="//' . $_SERVER['HTTP_HOST'], $buffer);
-			// content
-			$buffer = str_replace('content=\'//' . $_SERVER['HTTP_HOST'], 'content=\'https://' . $_SERVER['HTTP_HOST'], $buffer);
-			$buffer = str_replace('content="//' . $_SERVER['HTTP_HOST'], 'content="https://' . $_SERVER['HTTP_HOST'], $buffer);
-			$buffer = str_replace('content=\'http://' . $_SERVER['HTTP_HOST'], 'content=\'https://' . $_SERVER['HTTP_HOST'], $buffer);
-			$buffer = str_replace('content="http://' . $_SERVER['HTTP_HOST'], 'content="https://' . $_SERVER['HTTP_HOST'], $buffer);
-			// url
-			$buffer = str_replace('url(\'https://' . $_SERVER['HTTP_HOST'], 'url(\'//' . $_SERVER['HTTP_HOST'], $buffer);
-			$buffer = str_replace('url("https://' . $_SERVER['HTTP_HOST'], 'url("//' . $_SERVER['HTTP_HOST'], $buffer);
-			$buffer = str_replace('url(\'http://' . $_SERVER['HTTP_HOST'], 'url(\'//' . $_SERVER['HTTP_HOST'], $buffer);
-			$buffer = str_replace('url("http://' . $_SERVER['HTTP_HOST'], 'url("//' . $_SERVER['HTTP_HOST'], $buffer);
-			// loaderUrl
-			$buffer = str_replace('https:\/\/' . $_SERVER['HTTP_HOST'], '\/\/' . $_SERVER['HTTP_HOST'], $buffer);
-			$buffer = str_replace('http:\/\/' . $_SERVER['HTTP_HOST'], '\/\/' . $_SERVER['HTTP_HOST'], $buffer);
-			// Google URLs
-			$buffer = str_replace('https://fonts.googleapis.com', '//fonts.googleapis.com', $buffer);
-			$buffer = str_replace('http://fonts.googleapis.com', '//fonts.googleapis.com', $buffer);
-			$buffer = str_replace('https://maps.googleapis.com', '//maps.googleapis.com', $buffer);
-			$buffer = str_replace('http://maps.googleapis.com', '//maps.googleapis.com', $buffer);
-			$buffer = str_replace('https://ajax.googleapis.com', '//ajax.googleapis.com', $buffer);
-			$buffer = str_replace('http://ajax.googleapis.com', '//ajax.googleapis.com', $buffer);
-			$buffer = str_replace('https://storage.googleapis.com', '//storage.googleapis.com', $buffer);
-			$buffer = str_replace('http://storage.googleapis.com', '//storage.googleapis.com', $buffer);
-			// Fix for visible links
-			$buffer = str_replace('>http://' . $_SERVER['HTTP_HOST'], '>https://' . $_SERVER['HTTP_HOST'], $buffer);
+			
+			
+			
+			// All Intern Links
+			$buffer = str_replace('http://' . $_SERVER['HTTP_HOST'], 'https://' . $_SERVER['HTTP_HOST'], $buffer);
+			$buffer = str_replace('"//' . $_SERVER['HTTP_HOST'], '"https://' . $_SERVER['HTTP_HOST'], $buffer);
+			$buffer = str_replace('\'//' . $_SERVER['HTTP_HOST'], '\'https://' . $_SERVER['HTTP_HOST'], $buffer);
+			
+			// Google APIs			
+			$buffer = preg_replace('|http://(.*?).googleapis.com|', 'https://$1.googleapis.com', $buffer);
+			$buffer = preg_replace('|"//(.*?).googleapis.com|', '"https://$1.googleapis.com', $buffer);
+			$buffer = preg_replace("|'//(.*?).googleapis.com|", "'https://$1.googleapis.com", $buffer);
+			
+			$buffer = preg_replace('|http://(.*?).google.com|', 'https://$1.google.com', $buffer);
+			$buffer = preg_replace('|"//(.*?).google.com|', '"https://$1.google.com', $buffer);
+			$buffer = preg_replace("|'//(.*?).google.com|", "'https://$1.google.com", $buffer);
+			
+			// Facebook URLs			
+			$buffer = preg_replace('|http://(.*?).fbcdn.net|', 'https://$1.fbcdn.net', $buffer);
+			$buffer = preg_replace('|"//(.*?).facebook.net|', '"https://$1.facebook.net', $buffer);
+			$buffer = preg_replace("|'//(.*?).facebook.com|", "'https://$1.facebook.com", $buffer);
+			
+			// Instagram URLs			
+			$buffer = preg_replace('|http://(.*?).instagram.com|', 'https://$1.instagram.com', $buffer);
+			$buffer = preg_replace('|http://(.*?).cdninstagram.com|', 'https://$1.cdninstagram.com', $buffer);
+			
+			
+			// Some CDNs
+			$buffer = str_replace('http://amazonaws.com', 'https://amazonaws.com', $buffer);
+			$buffer = preg_replace('|http://(.*?).amazonaws.com|', 'https://$1.amazonaws.com', $buffer);
+			$buffer = preg_replace('|http://(.*?).cloudfront.net|', 'https://$1.cloudfront.net', $buffer);
+			$buffer = preg_replace('|http://(.*?).cloudfront.com|', 'https://$1.cloudfront.com', $buffer);
+			$buffer = preg_replace('|http://(.*?).cloudflare.com|', 'https://$1.cloudflare.com', $buffer);
+			$buffer = preg_replace('|http://(.*?).jsdelivr.net|', 'https://$1.jsdelivr.net', $buffer);
+			$buffer = preg_replace('|http://(.*?).bootstrapcdn.com|', 'https://$1.bootstrapcdn.com', $buffer);
+			$buffer = preg_replace('|http://(.*?).rawgit.com|', 'https://$1.rawgit.com', $buffer);
+			$buffer = preg_replace('|http://(.*?).maxcdn.com|', 'https://$1.maxcdn.com', $buffer);
+
+			
+			// Disqus URLs			
+			$buffer = preg_replace('|http://(.*?).disquscdn.com|', 'https://$1.disquscdn.com', $buffer);
+			$buffer = preg_replace('|http://(.*?).disqus.com|', 'https://$1.disqus.com', $buffer);
+			
+			// Twitter
+			$buffer = preg_replace('|http://(.*?).twitter.com|', 'https://$1.twitter.com', $buffer);
+			
+			// Akamai
+			$buffer = preg_replace('|http://(.*?).akamaihd.net|', 'https://$1.akamaihd.net', $buffer);
+			
+			// Gravatar
+			$buffer = preg_replace("|http://(.+).gravatar.com|", "'https://$1.gravatar.com", $buffer);
+			
+			// WordPress
+			$buffer = preg_replace("|'//(.*?).w.org|", "'https://$1.w.org", $buffer);
+			
+			
 		}
 		return $buffer;
 	}
 }
 new HTTP_HTTPS_REMOVER();
+
+//Add some links on the plugin page
+add_filter('plugin_row_meta', 'http_https_remover_extra_links', 10, 2);
+
+function http_https_remover_extra_links($links, $file) {
+	if ( $file == plugin_basename(dirname(__FILE__).'/http-https-remover.php') ) {
+		$links[] = '<a href="https://condacore.com/portfolio/http-https-remover/#beta" target="_blank">' . esc_html__('Become a Beta Tester', 'http-https-remover') . '</a>';
+		$links[] = '<a href="https://twitter.com/condacore" target="_blank">' . esc_html__('Twitter', 'http-https-remover') . '</a>';
+		$links[] = '<a href="https://paypal.me/MariusBolik" target="_blank">' . esc_html__('Donate', 'http-https-remover') . '</a>';
+	}
+	return $links;
+}

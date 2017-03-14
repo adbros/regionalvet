@@ -47,6 +47,11 @@ var FusionPageBuilder = FusionPageBuilder || {};
 					event.preventDefault();
 				}
 
+				if ( true === FusionPageBuilderApp.layoutIsSaving ) {
+					return;
+				}
+				FusionPageBuilderApp.layoutIsSaving = true;
+
 				if ( '' !== elementName ) {
 					$.ajax( {
 						type: 'POST',
@@ -61,6 +66,7 @@ var FusionPageBuilder = FusionPageBuilder || {};
 							fusion_layout_new_cat: 'sections'
 						},
 						complete: function( data ) {
+							FusionPageBuilderApp.layoutIsSaving = false;
 							layoutsContainer.prepend( data.responseText );
 							$( '.fusion-save-element-fields' ).remove();
 							emptyMessage.hide();
@@ -120,13 +126,13 @@ var FusionPageBuilder = FusionPageBuilder || {};
 			showSettings: function( event ) {
 
 				var $modalView,
-				    $viewSettings = {
+					$viewSettings = {
 						model: this.model,
 						collection: this.collection,
 						attributes: {
 							'data-modal_view': 'element_settings'
 						}
-				    };
+					};
 
 				if ( event ) {
 					event.preventDefault();
@@ -137,6 +143,22 @@ var FusionPageBuilder = FusionPageBuilder || {};
 
 				// Render settings view
 				$( 'body' ).append( $modalView.render().el );
+
+				this.hideHundredPercentOption();
+			},
+
+			hideHundredPercentOption: function() {
+				var $currentTemplate = jQuery( '#page_template' ),
+					$currentPortfolioWidth = jQuery( '#pyre_portfolio_width_100' ).val(),
+					$option = jQuery( '.fusion_builder_container li[data-option-id="hundred_percent"]' );
+
+				if ( '100-width.php' !== $currentTemplate.val() && 'yes' !== $currentPortfolioWidth ) {
+
+					if ( 'undefined' === typeof $currentPortfolioWidth || 'no' === $currentPortfolioWidth || ( 'default' === $currentPortfolioWidth && '' === FusionPageBuilderApp.fullWidth ) ) {
+
+						$option.hide();
+					}
+				}
 			},
 
 			addContainer: function( event ) {
@@ -255,6 +277,7 @@ var FusionPageBuilder = FusionPageBuilder || {};
 						columnAttributes.cid     = FusionPageBuilderViewManager.generateCid();
 						columnAttributes.parent  = rowAttributes.cid;
 						columnAttributes.from    = 'fusion_builder_container';
+						columnAttributes.cloned  = true;
 
 						FusionPageBuilderApp.collection.add( columnAttributes );
 

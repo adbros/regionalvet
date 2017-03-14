@@ -1,5 +1,4 @@
 <?php
-
 // @codingStandardsIgnoreFile
 /**
  * Plugin installation and activation for WordPress themes.
@@ -489,7 +488,7 @@ if ( ! class_exists( 'TGM_Plugin_Activation' ) ) {
 					$query = sprintf( '?page=%s&plugin=%s&tgmpa-update=%sversion=%s&return_url=%s&tgmpa-nonce=%s', $_GET['page'], $_GET['plugin'], $_GET['tgmpa-update'], $_GET['version'], $_GET['return_url'], $_GET['tgmpa-nonce'] );
 				}
 
-				wp_redirect( admin_url( 'themes.php' . $query ) );
+				wp_safe_redirect( admin_url( 'themes.php' . $query ) );
 				exit;
 			}
 		}
@@ -682,15 +681,14 @@ if ( ! class_exists( 'TGM_Plugin_Activation' ) ) {
 
 			if ( isset( $_REQUEST['tab'] ) && 'plugin-information' === $_REQUEST['tab'] ) {
 				// Needed for install_plugin_information().
-				require_once ABSPATH . 'wp-admin/includes/plugin-install.php';
+				require_once wp_normalize_path( ABSPATH . '/wp-admin/includes/plugin-install.php' );
 
 				wp_enqueue_style( 'plugin-install' );
 
 				global $tab, $body_id;
 				$body_id = 'plugin-information';
-				// @codingStandardsIgnoreStart
+				// @codingStandardsIgnoreLine
 				$tab     = 'plugin-information';
-				// @codingStandardsIgnoreEnd
 
 				install_plugin_information();
 
@@ -893,7 +891,7 @@ if ( ! class_exists( 'TGM_Plugin_Activation' ) ) {
 				);
 
 				if ( ! class_exists( 'Plugin_Upgrader', false ) ) {
-					require_once ABSPATH . 'wp-admin/includes/class-wp-upgrader.php';
+					require_once wp_normalize_path( ABSPATH . '/wp-admin/includes/class-wp-upgrader.php' );
 				}
 
 				$title     = ( 'update' === $install_type ) ? $this->strings['updating'] : $this->strings['installing'];
@@ -1693,7 +1691,7 @@ if ( ! class_exists( 'TGM_Plugin_Activation' ) ) {
 
 			if ( ! isset( $api[ $slug ] ) ) {
 				if ( ! function_exists( 'plugins_api' ) ) {
-					require_once ABSPATH . 'wp-admin/includes/plugin-install.php';
+					require_once wp_normalize_path( ABSPATH . '/wp-admin/includes/plugin-install.php' );
 				}
 
 				$response = plugins_api( 'plugin_information', array( 'slug' => $slug, 'fields' => array( 'sections' => false ) ) );
@@ -2033,7 +2031,7 @@ if ( ! class_exists( 'TGM_Plugin_Activation' ) ) {
 		 */
 		public function get_plugins( $plugin_folder = '' ) {
 			if ( ! function_exists( 'get_plugins' ) ) {
-				require_once ABSPATH . 'wp-admin/includes/plugin.php';
+				require_once wp_normalize_path( ABSPATH . '/wp-admin/includes/plugin.php' );
 			}
 
 			return get_plugins( $plugin_folder );
@@ -2206,7 +2204,7 @@ if ( ! function_exists( 'tgmpa' ) ) {
  * @since 2.2.0
  */
 if ( ! class_exists( 'WP_List_Table' ) ) {
-	require_once ABSPATH . 'wp-admin/includes/class-wp-list-table.php';
+	require_once wp_normalize_path( ABSPATH . '/wp-admin/includes/class-wp-list-table.php' );
 }
 
 if ( ! class_exists( 'TGMPA_List_Table' ) ) {
@@ -3211,7 +3209,7 @@ if ( ! function_exists( 'tgmpa_load_bulk_installer' ) ) {
 
 		if ( isset( $_GET['page'] ) && $tgmpa_instance->menu === $_GET['page'] ) {
 			if ( ! class_exists( 'Plugin_Upgrader', false ) ) {
-				require_once ABSPATH . 'wp-admin/includes/class-wp-upgrader.php';
+				require_once wp_normalize_path( ABSPATH . '/wp-admin/includes/class-wp-upgrader.php' );
 			}
 
 			if ( ! class_exists( 'TGMPA_Bulk_Installer' ) ) {

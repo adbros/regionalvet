@@ -1,4 +1,5 @@
 jQuery( document ).ready( function() {
+
 	jQuery( '.fusion-builder-admin-toggle-heading' ).on( 'click', function() {
 		jQuery( this ).parent().find( '.fusion-builder-admin-toggle-content' ).slideToggle( 300 );
 

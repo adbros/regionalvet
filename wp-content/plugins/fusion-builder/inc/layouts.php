@@ -73,7 +73,7 @@ function fusion_builder_register_layouts() {
 	register_post_type( 'fusion_element', apply_filters( 'fusion_layout_element_args', $args ) );
 
 	$labels = array(
-		'name'              => esc_attr__( 'Category', 'fusion-builder' ),
+		'name' => esc_attr__( 'Category', 'fusion-builder' ),
 	);
 
 	register_taxonomy( 'element_category', array( 'fusion_element' ), array(
@@ -86,7 +86,7 @@ function fusion_builder_register_layouts() {
 	) );
 
 	$labels = array(
-		'name'              => esc_attr__( 'Category', 'fusion-builder' ),
+		'name' => esc_attr__( 'Category', 'fusion-builder' ),
 	);
 
 	register_taxonomy( 'template_category', array( 'fusion_template' ), array(
@@ -177,11 +177,8 @@ function fusion_builder_display_library_content() {
 					<li><a href="#fusion-builder-layouts-demos" id="fusion-builder-layouts-demos-trigger"><?php esc_attr_e( 'Demos', 'fusion-builder' ); ?></a></li>
 				<?php endif; ?>
 				<li><a href="#fusion-builder-layouts-templates" id="fusion-builder-layouts-templates-trigger"><?php esc_attr_e( 'Templates', 'fusion-builder' ); ?></a></li>
-
 				<li><a href="#fusion-builder-layouts-sections" id="fusion-builder-layouts-sections-trigger"><?php esc_attr_e( 'Containers', 'fusion-builder' ); ?></a></li>
-
 				<li><a href="#fusion-builder-layouts-columns" id="fusion-builder-layouts-columns-trigger"><?php esc_attr_e( 'Columns', 'fusion-builder' ); ?></a></li>
-
 				<li><a href="#fusion-builder-layouts-elements" id="fusion-builder-layouts-elements-trigger"><?php esc_attr_e( 'Elements', 'fusion-builder' ); ?></a></li>
 			</ul>
 		</div>
@@ -194,6 +191,7 @@ function fusion_builder_display_library_content() {
 
 						<div class="fusion-builder-layouts-header-fields">
 							<?php if ( $fusion_builder_demos ) : ?>
+								<?php asort( $fusion_builder_demos ); ?>
 								<select class="fusion-builder-demo-select">
 									<?php foreach ( $fusion_builder_demos as $key => $fusion_builder_demo ) : ?>
 										<option value="<?php echo esc_attr( $key ); ?>">
@@ -217,22 +215,19 @@ function fusion_builder_display_library_content() {
 						<ul class="fusion-page-layouts demo-<?php echo esc_attr( $key ); ?>">
 
 							<?php if ( isset( $fusion_builder_demo['pages'] ) && ! empty( $fusion_builder_demo['pages'] ) ) : ?>
-
-									<?php foreach ( $fusion_builder_demo['pages'] as $page_key => $page ) { ?>
-										<li class="fusion-page-layout" data-layout_id="<?php echo $page['name']; ?>">
-											<h4 class="fusion-page-layout-title"><?php echo $page['name']; ?></h4>
-											<span class="fusion-layout-buttons">
-												<a href="#" class="fusion-builder-demo-button-load" data-page-name="<?php echo $page_key; ?>" data-demo-name="<?php echo $key; ?>" data-post-id="<?php echo get_the_ID(); ?>">
-													<?php esc_html_e( 'Load', 'fusion-builder' ); ?>
-												</a>
-											</span>
-										</li>
-									<?php } ?>
-
+								<?php asort( $fusion_builder_demo['pages'] ); ?>
+								<?php foreach ( $fusion_builder_demo['pages'] as $page_key => $page ) : ?>
+									<li class="fusion-page-layout" data-layout_id="<?php echo $page['name']; ?>">
+										<h4 class="fusion-page-layout-title"><?php echo ucwords( strtolower( $page['name'] ) ); ?></h4>
+										<span class="fusion-layout-buttons">
+											<a href="#" class="fusion-builder-demo-button-load" data-page-name="<?php echo $page_key; ?>" data-demo-name="<?php echo $key; ?>" data-post-id="<?php echo get_the_ID(); ?>">
+												<?php esc_html_e( 'Load', 'fusion-builder' ); ?>
+											</a>
+										</span>
+									</li>
+								<?php endforeach; ?>
 							<?php else : ?>
-								<li>
-									<p><?php esc_html_e( 'There are no demos in your library', 'fusion-builder' ); ?></p>
-								</li>
+								<li><p><?php esc_html_e( 'There are no demos in your library', 'fusion-builder' ); ?></p></li>
 							<?php endif; ?>
 
 						</ul>
@@ -259,11 +254,11 @@ function fusion_builder_display_library_content() {
 
 				<?php
 				// Query containers.
-				$query = fusion_builder_cached_query( array(
+				$query = fusion_cached_query( array(
 					'status'         => 'publish',
 					'post_type'      => 'fusion_element',
 					'posts_per_page' => '-1',
-					'tax_query' => array(
+					'tax_query'      => array(
 						array(
 							'taxonomy' => 'element_category',
 							'field'    => 'slug',
@@ -297,7 +292,10 @@ function fusion_builder_display_library_content() {
 
 				<?php endif; ?>
 
-				<?php wp_reset_postdata(); ?>
+				<?php
+				$post = $saved_post ? $saved_post : $post;
+				wp_reset_postdata();
+				?>
 
 			</div>
 
@@ -317,11 +315,11 @@ function fusion_builder_display_library_content() {
 
 				<?php
 				// Query columns.
-				$query = fusion_builder_cached_query( array(
+				$query = fusion_cached_query( array(
 					'status'         => 'publish',
 					'post_type'      => 'fusion_element',
 					'posts_per_page' => '-1',
-					'tax_query' => array(
+					'tax_query'      => array(
 						array(
 							'taxonomy' => 'element_category',
 							'field'    => 'slug',
@@ -355,7 +353,10 @@ function fusion_builder_display_library_content() {
 
 				<?php endif; ?>
 
-				<?php wp_reset_postdata(); ?>
+				<?php
+				$post = $saved_post ? $saved_post : $post;
+				wp_reset_postdata();
+				?>
 
 			</div>
 
@@ -375,11 +376,11 @@ function fusion_builder_display_library_content() {
 
 				<?php
 				// Query elements.
-				$query = fusion_builder_cached_query( array(
+				$query = fusion_cached_query( array(
 					'status'         => 'publish',
 					'post_type'      => 'fusion_element',
 					'posts_per_page' => '-1',
-					'tax_query' => array(
+					'tax_query'      => array(
 						array(
 							'taxonomy' => 'element_category',
 							'field'    => 'slug',
@@ -414,7 +415,10 @@ function fusion_builder_display_library_content() {
 
 				<?php endif; ?>
 
-				<?php wp_reset_postdata(); ?>
+				<?php
+				$post = $saved_post ? $saved_post : $post;
+				wp_reset_postdata();
+				?>
 
 			</div>
 
@@ -438,7 +442,7 @@ function fusion_builder_display_library_content() {
 
 				<?php
 				// Query page templates.
-				$query = fusion_builder_cached_query( array(
+				$query = fusion_cached_query( array(
 					'status'         => 'publish',
 					'post_type'      => 'fusion_template',
 					'posts_per_page' => '-1',
@@ -501,11 +505,11 @@ function fusion_load_custom_elements() {
 		$cat = $_POST['cat'];
 
 		// Query elements.
-		$query = fusion_builder_cached_query( array(
+		$query = fusion_cached_query( array(
 			'status'         => 'publish',
 			'post_type'      => 'fusion_element',
 			'posts_per_page' => '-1',
-			'tax_query' => array(
+			'tax_query'      => array(
 				array(
 					'taxonomy' => 'element_category',
 					'field'    => 'slug',
@@ -553,9 +557,9 @@ function fusion_builder_load_layout() {
 		die( -1 );
 	}
 
-	$data = array();
+	$data      = array();
 	$layout_id = (int) $_POST['fusion_layout_id'];
-	$layout = get_post( $layout_id );
+	$layout    = get_post( $layout_id );
 
 	if ( $layout ) {
 
@@ -580,8 +584,6 @@ function fusion_builder_load_layout() {
 			}
 		}
 	}
-
-	do_action( 'fusion_builder_import_page_template' );
 
 	$json_data = wp_json_encode( $data );
 
@@ -610,10 +612,10 @@ function fusion_builder_load_demo() {
 		die( -1 );
 	}
 
-	$data = array();
+	$data      = array();
 	$page_name = $_POST['page_name'];
 	$demo_name = $_POST['demo_name'];
-	$post_id = (int) $_POST['post_id'];
+	$post_id   = (int) $_POST['post_id'];
 
 	$fusion_builder_demos = apply_filters( 'fusion_builder_get_demo_pages', array() );
 
@@ -635,8 +637,6 @@ function fusion_builder_load_demo() {
 		$data['meta'] = $fusion_builder_demos[ $demo_name ]['pages'][ $page_name ]['meta'];
 	}
 
-	do_action( 'fusion_builder_import_page_template' );
-
 	$json_data = wp_json_encode( $data );
 
 	die( $json_data );
@@ -654,9 +654,9 @@ function fusion_builder_save_layout() {
 	if ( isset( $_POST['fusion_layout_name'] ) && '' !== $_POST['fusion_layout_name'] ) {
 
 		$layout_name = $_POST['fusion_layout_name'];
-		$taxonomy = 'element_category';
-		$term = '';
-		$meta = '';
+		$taxonomy    = 'element_category';
+		$term        = '';
+		$meta        = '';
 		$layout_type = '';
 
 		if ( isset( $_POST['fusion_layout_post_type'] ) && '' !== $_POST['fusion_layout_post_type'] ) {
@@ -731,3 +731,33 @@ function fusion_builder_save_layout() {
 	die();
 }
 add_action( 'wp_ajax_fusion_builder_save_layout', 'fusion_builder_save_layout' );
+
+/**
+ * Get image URL from image ID.
+ */
+function fusion_builder_get_image_url() {
+
+	check_ajax_referer( 'fusion_load_nonce', 'fusion_load_nonce' );
+
+	if ( ! isset( $_POST['fusion_image_ids'] ) && '' === $_POST['fusion_image_ids'] ) {
+		die( -1 );
+	}
+
+	$data      = array();
+	$image_ids = $_POST['fusion_image_ids'];
+	foreach ( $image_ids as $image_id ) {
+		if ( '' !== $image_id ) {
+			$image_url = wp_get_attachment_url( $image_id, 'thumbnail' );
+			$image_html = '<div class="fusion-multi-image" data-image-id="' . $image_id . '">';
+			$image_html .= '<img src="' . $image_url . '"/>';
+			$image_html .= '<span class="fusion-multi-image-remove dashicons dashicons-no-alt"></span>';
+			$image_html .= '</div>';
+			$data['images'][] = $image_html;
+		}
+	}
+	$json_data = wp_json_encode( $data );
+
+	die( $json_data );
+
+}
+add_action( 'wp_ajax_fusion_builder_get_image_url', 'fusion_builder_get_image_url' );

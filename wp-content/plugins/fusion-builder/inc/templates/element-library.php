@@ -18,7 +18,7 @@
 			<# } #>
 		</ul>
 	</div>
-	
+
 	<div class="fusion-builder-main-settings fusion-builder-main-settings-full has-group-options">
 		<div class="fusion-builder-all-elements-container">
 			<div class="fusion-tabs">

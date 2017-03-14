@@ -8,8 +8,8 @@
 
 		<div class="fusion-builder-important-notice">
 			<p class="about-description">
-				<?php esc_html_e( 'Fusion Builder elements are fully customizable through a global set of options in the Fusion Theme Options Panel. Click the button below to go to Fusion Theme Options to see all the style settings available for of each element. Additionally, there are options below for general Fusion Builder settings.', 'fusion-builder' ); ?><br/>
-				<a href="<?php echo admin_url( 'themes.php?page=avada_options#tab-fusion_builder_elements' ); ?>" class="button button-primary button-large avada-large-button"><?php esc_attr_e( 'Go To Fusion Theme Options', 'fusion-builder' );?></a>
+				<?php esc_html_e( 'Fusion Builder elements are fully customizable through a global set of options in the Fusion Element Options Panel. Click the button below to go to Fusion Element Options to see all the style settings available for of each element. Additionally, there are options below for general Fusion Builder settings.', 'fusion-builder' ); ?><br/>
+				<a href="<?php echo apply_filters( 'fusion_builder_options_url', admin_url( 'admin.php?page=fusion-element-options' ) ); ?>#animation_offset" class="button button-primary button-large avada-large-button"><?php esc_attr_e( 'Go To Fusion Element Options', 'fusion-builder' );?></a>
 			</p>
 		</div>
 
@@ -61,34 +61,40 @@
 							'fusion_featured_products_slider' => array(
 								'name'      => esc_attr__( 'Woo Featured', 'fusion-builder' ),
 								'shortcode' => 'fusion_featured_products_slider',
+								'class'     => ( class_exists( 'WooCommerce' ) ) ? '' : 'hidden',
 							),
 							'fusion_products_slider' => array(
 								'name'      => esc_attr__( 'Woo Carousel', 'fusion-builder' ),
 								'shortcode' => 'fusion_products_slider',
+								'class'     => ( class_exists( 'WooCommerce' ) ) ? '' : 'hidden',
 							),
 							'fusion_woo_shortcodes' => array(
-								'name'              => esc_attr__( 'Woo Shortcodes', 'fusion-builder' ),
-								'shortcode'         => 'fusion_woo_shortcodes',
+								'name'      => esc_attr__( 'Woo Shortcodes', 'fusion-builder' ),
+								'shortcode' => 'fusion_woo_shortcodes',
+								'class'     => ( class_exists( 'WooCommerce' ) ) ? '' : 'hidden',
 							),
 							'layerslider' => array(
 								'name'       => esc_attr__( 'Layer Slider', 'fusion-builder' ),
 								'shortcode'  => 'layerslider',
+								'class'      => ( defined( 'LS_PLUGIN_BASE' ) ) ? '' : 'hidden',
 							),
 							'rev_slider' => array(
-								'name'       => esc_attr__( 'Revolution Slider', 'fusion-builder' ),
-								'shortcode'  => 'rev_slider',
+								'name'      => esc_attr__( 'Revolution Slider', 'fusion-builder' ),
+								'shortcode' => 'rev_slider',
+								'class'     => ( defined( 'RS_PLUGIN_PATH' ) ) ? '' : 'hidden',
 							),
 							'fusion_events' => array(
 								'name'      => esc_attr__( 'Events', 'fusion-builder' ),
 								'shortcode' => 'fusion_events',
+								'class'     => ( class_exists( 'Tribe__Events__Main' ) ) ? '' : 'hidden',
 							),
 							'fusion_fontawesome' => array(
-								'name'       => esc_attr__( 'Font Awesome Icon', 'fusion-builder' ),
-								'shortcode'  => 'fusion_fontawesome',
+								'name'      => esc_attr__( 'Font Awesome Icon', 'fusion-builder' ),
+								'shortcode' => 'fusion_fontawesome',
 							),
 							'fusion_fusionslider' => array(
-								'name'              => esc_attr__( 'Fusion Slider', 'fusion-builder' ),
-								'shortcode'         => 'fusion_fusionslider',
+								'name'      => esc_attr__( 'Fusion Slider', 'fusion-builder' ),
+								'shortcode' => 'fusion_fusionslider',
 							),
 						);
 
@@ -99,11 +105,12 @@
 							if ( empty( $module['hide_from_builder'] ) ) {
 								$i++;
 								$checked = '';
+								$class = ( isset( $module['class'] ) && '' !== $module['class'] ) ? $module['class'] : '';
 
 								if ( ( isset( $existing_settings['fusion_elements'] ) && is_array( $existing_settings['fusion_elements'] ) && in_array( $module['shortcode'],  $existing_settings['fusion_elements'] ) ) || ( ! isset( $existing_settings['fusion_elements'] ) || ! is_array( $existing_settings['fusion_elements'] ) ) ) {
 									$checked = 'checked';
 								}
-								echo '<li>';
+								echo '<li class="' . $class . '">';
 								echo '<label for="hide_from_builder_' . $i . '">';
 								echo '<input name="fusion_elements[]" type="checkbox" value="' . $module['shortcode'] . '" ' . $checked . ' id="hide_from_builder_' . $i . '"/>';
 								echo $module['name'] . '</label>';

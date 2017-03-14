@@ -13,7 +13,7 @@ function fusion_element_layer_slider() {
 		'name'       => esc_attr__( 'Layer Slider', 'fusion-builder' ),
 		'shortcode'  => 'layerslider',
 		'icon'       => 'fusiona-stack',
-		'preview'    => FUSION_BUILDER_PLUGIN_DIR . 'js/previews/fusion-layer-slider-preview.php',
+		'preview'    => FUSION_BUILDER_PLUGIN_DIR . 'inc/templates/previews/fusion-layer-slider-preview.php',
 		'preview_id' => 'fusion-builder-block-module-layer-slider-preview-template',
 		'params'     => array(
 			array(

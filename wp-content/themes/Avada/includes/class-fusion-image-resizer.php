@@ -3,7 +3,12 @@
  * On the fly image resizer.
  * Script from the Shoestrap theme by @aristath
  *
- * @since 3.8.0
+ * @author     ThemeFusion
+ * @copyright  (c) Copyright by ThemeFusion
+ * @link       http://theme-fusion.com
+ * @package    Avada
+ * @subpackage Core
+ * @since      3.8.0
  */
 
 // Do not allow directly accessing this file.

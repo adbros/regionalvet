@@ -92,7 +92,7 @@ if( !class_exists( 'kdMultipleFeaturedImages' ) ) {
 			if( strstr($_SERVER['REQUEST_URI'], 'wp-admin/post-new.php') || strstr($_SERVER['REQUEST_URI'], 'wp-admin/post.php') || strstr($_SERVER['REQUEST_URI'], 'wp-admin/media-upload.php')) {
 				wp_enqueue_script(
 						'kd-multiple-featured-images',
-						Avada::$template_dir_url . '/includes/plugins/multiple-featured-images/js/kd-admin.js',
+						Avada::$stylesheet_dir_url . '/includes/plugins/multiple-featured-images/js/kd-admin.js',
 						'jquery'
 				);
 			}
@@ -229,22 +229,24 @@ if( !class_exists( 'kdMultipleFeaturedImages' ) ) {
 
 			$post_ID = intval( $_POST['post_id'] );
 
-			if( !current_user_can( 'edit_post', $post_ID ) ) {
+			check_ajax_referer( $this->nonce.$post_ID, '_ajax_nonce' );
+
+			if( ! current_user_can( 'edit_post', $post_ID ) ) {
 				die( '-1' );
 			}
 
 			$thumb_id = intval( $_POST['thumbnail_id'] );
 
-			if( $thumb_id == '-1' ) {
+			if ( $thumb_id == '-1' ) {
 				delete_post_meta( $post_ID, $this->post_meta_key );
 
 				die( $this->kd_meta_box_output( NULL ) );
 			}
 
-			if( $thumb_id && get_post( $thumb_id ) ) {
+			if ( $thumb_id && get_post( $thumb_id ) ) {
 				$thumb_html = wp_get_attachment_image( $thumb_id, 'thumbnail' );
 
-				if( !empty( $thumb_html ) ) {
+				if ( ! empty( $thumb_html ) ) {
 					update_post_meta( $post_ID, $this->post_meta_key, $thumb_id );
 
 					die( $this->kd_meta_box_output( $thumb_id ) );

@@ -43,7 +43,7 @@ var FusionPageBuilder = FusionPageBuilder || {};
 				    customSettingsViewName,
 				    $container;
 
-				// TODO: update the row view if it has been dragged into another column
+				// TODO: checked column
 				if ( 'undefined' !== typeof this.model && 'undefined' !== typeof this.model.get( 'view' ) && ( 'row_inner' === this.model.get( 'element_type' ) || 'fusion_builder_row' === this.model.get( 'element_type' ) ) && this.model.get( 'parent' ) !== this.model.get( 'view' ).$el.data( 'cid' ) ) {
 					this.model.set( 'view', FusionPageBuilderViewManager.getView( this.model.get( 'parent' ) ), { silent: true } );
 				}
@@ -102,7 +102,9 @@ var FusionPageBuilder = FusionPageBuilder || {};
 
 				$container.append( view.render().el );
 
-				$( 'body' ).addClass( 'fusion_builder_no_scroll' ).append( '<div class="fusion_builder_modal_overlay"></div>' );
+				if ( $( '.fusion_builder_modal_overlay' ).length < 1 && $( '.fusion_builder_modal_inner_row_overlay' ).length < 1 ) {
+					$( 'body' ).addClass( 'fusion_builder_no_scroll' ).append( '<div class="fusion_builder_modal_overlay"></div>' );
+				}
 
 				// Element search field
 				if ( 'column_library' === this.attributes['data-modal_view'] || 'element_library' === this.attributes['data-modal_view'] || 'all_elements_generator' === this.attributes['data-modal_view'] ) {
@@ -535,7 +537,7 @@ var FusionPageBuilder = FusionPageBuilder || {};
 			},
 
 			removeOverlay: function() {
-				if ( $( '.fusion_builder_modal_overlay' ).length ) {
+				if ( $( '.fusion_builder_modal_overlay' ).length && $( '.fusion-builder-modal-settings-container' ).length < 2 ) {
 					$( '.fusion_builder_modal_overlay' ).remove();
 					$( 'body' ).removeClass( 'fusion_builder_no_scroll' );
 				}

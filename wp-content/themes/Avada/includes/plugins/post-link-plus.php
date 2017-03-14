@@ -1,5 +1,5 @@
 <?php
-
+// @codingStandardsIgnoreFile
 // Do not allow directly accessing this file.
 if ( ! defined( 'ABSPATH' ) ) {
 	exit( 'Direct script access denied.' );
@@ -44,7 +44,7 @@ function fusion_get_adjacent_post_plus( $r, $previous = true ) {
 			$order_format = '%d';
 			break;
 		case ( 'custom' == $order_by && ! empty( $meta_key ) ):
-		 	// Don't allow a custom sort if meta_key is empty.
+			// Don't allow a custom sort if meta_key is empty.
 			$order_format = '%s';
 			break;
 		case ( 'numeric' == $order_by && ! empty( $meta_key ) ):

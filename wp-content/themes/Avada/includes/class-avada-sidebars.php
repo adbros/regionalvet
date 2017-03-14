@@ -1,4 +1,13 @@
 <?php
+/**
+ * Handles sidebars.
+ *
+ * @author     ThemeFusion
+ * @copyright  (c) Copyright by ThemeFusion
+ * @link       http://theme-fusion.com
+ * @package    Avada
+ * @subpackage Core
+ */
 
 // Do not allow directly accessing this file.
 if ( ! defined( 'ABSPATH' ) ) {
@@ -32,44 +41,48 @@ class Avada_Sidebars {
 			'after_title'   => '</h4></div>',
 		) );
 
-		$columns = Avada()->settings->get( 'footer_widgets_columns' ) + 1;
+		if ( Avada()->settings->get( 'footer_widgets' ) || '' === Avada()->settings->get( 'footer_widgets' ) ) {
+			$columns = (int) Avada()->settings->get( 'footer_widgets_columns' ) + 1;
 
-		if ( ! $columns || 1 === $columns ) {
-			$columns = 5;
+			if ( ! $columns || 1 === $columns ) {
+				$columns = 5;
+			}
+
+			// Register he footer widgets.
+			for ( $i = 1; $i < $columns; $i++ ) {
+
+				register_sidebar( array(
+					'name'          => sprintf( 'Footer Widget %s', $i ),
+					'id'            => 'avada-footer-widget-' . $i,
+					'before_widget' => '<div id="%1$s" class="fusion-footer-widget-column widget %2$s">',
+					'after_widget'  => '<div style="clear:both;"></div></div>',
+					'before_title'  => '<h4 class="widget-title">',
+					'after_title'   => '</h4>',
+				) );
+
+			}
 		}
 
-		// Register he footer widgets.
-		for ( $i = 1; $i < $columns; $i++ ) {
+		if ( Avada()->settings->get( 'slidingbar_widgets' ) || '' === Avada()->settings->get( 'slidingbar_widgets' ) ) {
+			$columns = (int) Avada()->settings->get( 'slidingbar_widgets_columns' ) + 1;
 
-			register_sidebar( array(
-				'name'          => sprintf( 'Footer Widget %s', $i ),
-				'id'            => 'avada-footer-widget-' . $i,
-				'before_widget' => '<div id="%1$s" class="fusion-footer-widget-column widget %2$s">',
-				'after_widget'  => '<div style="clear:both;"></div></div>',
-				'before_title'  => '<h4 class="widget-title">',
-				'after_title'   => '</h4>',
-			) );
+			if ( ! $columns || 1 === $columns ) {
+				$columns = 5;
+			}
 
-		}
+			// Register the slidingbar widgets.
+			for ( $i = 1; $i < $columns; $i++ ) {
 
-		$columns = Avada()->settings->get( 'slidingbar_widgets_columns' ) + 1;
+				register_sidebar( array(
+					'name'          => sprintf( 'Sliding Bar Widget %s', $i ),
+					'id'            => 'avada-slidingbar-widget-' . $i,
+					'before_widget' => '<div id="%1$s" class="fusion-slidingbar-widget-column widget %2$s">',
+					'after_widget'  => '<div style="clear:both;"></div></div>',
+					'before_title'  => '<h4 class="widget-title">',
+					'after_title'   => '</h4>',
+				) );
 
-		if ( ! $columns || 1 === $columns ) {
-			$columns = 5;
-		}
-
-		// Register the slidingbar widgets.
-		for ( $i = 1; $i < $columns; $i++ ) {
-
-			register_sidebar( array(
-				'name'          => sprintf( 'Slidingbar Widget %s', $i ),
-				'id'            => 'avada-slidingbar-widget-' . $i,
-				'before_widget' => '<div id="%1$s" class="fusion-slidingbar-widget-column widget %2$s">',
-				'after_widget'  => '<div style="clear:both;"></div></div>',
-				'before_title'  => '<h4 class="widget-title">',
-				'after_title'   => '</h4>',
-			) );
-
+			}
 		}
 
 	}

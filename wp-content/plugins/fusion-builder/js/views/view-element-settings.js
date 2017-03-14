@@ -7,6 +7,7 @@ var FusionPageBuilder = FusionPageBuilder || {};
 		FusionPageBuilder.ElementSettingsView = window.wp.Backbone.View.extend( {
 
 			className: 'fusion_builder_module_settings',
+			template: FusionPageBuilder.template( $( '#fusion-builder-block-module-settings-template' ).html() ),
 
 			events: {
 				'click #qt_element_content_fusion_shortcodes_text_mode': 'activateSCgenerator'
@@ -17,8 +18,25 @@ var FusionPageBuilder = FusionPageBuilder || {};
 			},
 
 			initialize: function() {
-				this.template = FusionPageBuilder.template( $( '#fusion-builder-block-module-settings-template' ).html() );
+				var functionName,
+				    params,
+				    processedParams;
+
 				this.listenTo( FusionPageBuilderEvents, 'fusion-modal-view-removed', this.removeElement );
+
+				// Manupulate model attributes via custom function if provided by the element
+				if ( 'undefined' !== typeof fusionAllElements[ this.model.get( 'element_type' ) ].on_settings ) {
+
+					functionName = fusionAllElements[ this.model.get( 'element_type' ) ].on_settings;
+
+					if ( 'function' === typeof FusionPageBuilderApp[ functionName ] ) {
+						params          = this.model.get( 'params' );
+						processedParams = FusionPageBuilderApp[ functionName ]( params, this );
+
+						this.model.set( 'params', processedParams );
+					}
+				}
+
 			},
 
 			render: function() {
@@ -72,7 +90,9 @@ var FusionPageBuilder = FusionPageBuilder || {};
 				    $placeholderText,
 				    $theContent,
 				    fixSettingsLvl = false,
-				    parentAtts;
+				    parentAtts,
+				    $linkButton,
+				    $dateTimePicker;
 
 				thisModel = this.model;
 
@@ -100,6 +120,8 @@ var FusionPageBuilder = FusionPageBuilder || {};
 				$selectField       = this.$el.find( '.fusion-select-field' );
 				$dimensionField    = this.$el.find( '.single-builder-dimension' );
 				$codeBlock         = this.$el.find( '.fusion-builder-code-block' );
+				$linkButton        = this.$el.find( '.fusion-builder-link-button' );
+				$dateTimePicker    = this.$el.find( '.fusion-datetime' );
 
 				if ( $textField.length ) {
 					$textField.on( 'focus', function( event ) {
@@ -108,6 +130,22 @@ var FusionPageBuilder = FusionPageBuilder || {};
 						}
 					} );
 				}
+
+				if ( $linkButton.length ) {
+					FusionPageBuilderApp.fusionBuilderActivateLinkSelector( $linkButton );
+				}
+
+				if ( $dateTimePicker.length ) {
+					jQuery( $dateTimePicker ).datetimepicker( {
+						format: 'yyyy-MM-dd hh:mm:ss'
+					} );
+
+					jQuery( $dateTimePicker ).on( 'show', function( e ) {
+						e.preventDefault();
+						return false;
+					} ).datetimepicker();
+				}
+
 				if ( $colorPicker.length ) {
 					$colorPicker.each( function() {
 						var self          = $( this ),
@@ -288,12 +326,12 @@ var FusionPageBuilder = FusionPageBuilder || {};
 							$hiddenValue.val( values[handle] );
 						}
 						$notFirst = true;
-						jQuery( this.target ).closest( '.fusion-slider-container' ).prev().val( values[handle] );
-						jQuery( '#' + $targetId ).trigger( 'change' );
+						jQuery( this.target ).closest( '.fusion-slider-container' ).prev().val( values[handle] ).trigger( 'change' );
+						$thisEl.find( '#' + $targetId ).trigger( 'change' );
 					});
 
 					// On manual input change, update slider position
-					$rangeInput.on( 'change', function( values, handle ) {
+					$rangeInput.on( 'keyup', function( values, handle ) {
 						if ( $rangeDefault ) {
 							$rangeDefault.parent().removeClass( 'checked' );
 							$hiddenValue.val( values[handle] );

@@ -1,140 +1,158 @@
 <?php
 
-/**
- * Shortcode class.
- *
- * @package fusion-builder
- * @since 1.0
- */
-class FusionSC_Vimeo {
+if ( fusion_is_element_enabled( 'fusion_vimeo' ) ) {
 
-	/**
-	 * An array of the shortcode arguments.
-	 *
-	 * @static
-	 * @access public
-	 * @since 1.0
-	 * @var array
-	 */
-	public static $args;
+	if ( ! class_exists( 'FusionSC_Vimeo' ) ) {
+		/**
+		 * Shortcode class.
+		 *
+		 * @package fusion-builder
+		 * @since 1.0
+		 */
+		class FusionSC_Vimeo extends Fusion_Element {
 
-	/**
-	 * Constructor.
-	 *
-	 * @access public
-	 * @since 1.0
-	 */
-	public function __construct() {
+			/**
+			 * An array of the shortcode arguments.
+			 *
+			 * @access protected
+			 * @since 1.0
+			 * @var array
+			 */
+			protected $args;
 
-		add_filter( 'fusion_attr_vimeo-shortcode', array( $this, 'attr' ) );
-		add_filter( 'fusion_attr_vimeo-shortcode-video-sc', array( $this, 'video_sc_attr' ) );
+			/**
+			 * Constructor.
+			 *
+			 * @access public
+			 * @since 1.0
+			 */
+			public function __construct() {
+				parent::__construct();
+				add_filter( 'fusion_attr_vimeo-shortcode', array( $this, 'attr' ) );
+				add_filter( 'fusion_attr_vimeo-shortcode-video-sc', array( $this, 'video_sc_attr' ) );
 
-		add_shortcode( 'fusion_vimeo', array( $this, 'render' ) );
+				add_shortcode( 'fusion_vimeo', array( $this, 'render' ) );
 
+			}
+
+			/**
+			 * Render the shortcode.
+			 *
+			 * @access public
+			 * @since 1.0
+			 * @param  array  $args    Shortcode parameters.
+			 * @param  string $content Content between shortcode.
+			 * @return string          HTML output.
+			 */
+			public function render( $args, $content = '' ) {
+
+				$defaults = FusionBuilder::set_shortcode_defaults(
+					array(
+						'hide_on_mobile' => fusion_builder_default_visibility( 'string' ),
+						'class'          => '',
+						'api_params'     => '',
+						'autoplay'       => 'no',
+						'center'         => 'no',
+						'height'         => 360,
+						'id'             => '',
+						'width'          => 600,
+					), $args
+				);
+
+				$defaults['height'] = FusionBuilder::validate_shortcode_attr_value( $defaults['height'], '' );
+				$defaults['width']  = FusionBuilder::validate_shortcode_attr_value( $defaults['width'], '' );
+
+				extract( $defaults );
+
+				$this->args = $defaults;
+
+				$protocol = ( is_ssl() ) ? 'https' : 'http';
+
+				// Make sure only the video ID is passed to the iFrame.
+				$pattern = '/(?:https?:\/\/)?(?:www\.)?vimeo.com\/(?:channels\/(?:\w+\/)?|groups\/([^\/]*)\/videos\/|album\/(\d+)\/video\/|)(\d+)(?:$|\/|\?)/';
+				preg_match( $pattern, $id, $matches );
+				if ( isset( $matches[3] ) ) {
+					$id = $matches[3];
+				}
+
+				$html  = '<div ' . FusionBuilder::attributes( 'vimeo-shortcode' ) . '>';
+				$html .= '<div ' . FusionBuilder::attributes( 'vimeo-shortcode-video-sc' ) . '>';
+				$html .= '<iframe src="' . $protocol . '://player.vimeo.com/video/' . $id . '?autoplay=0' . $api_params . '" width="' . $width . '" height="' . $height . '" allowfullscreen title="vimeo' . $id . '"></iframe>';
+				$html .= '</div></div>';
+
+				return $html;
+
+			}
+
+			/**
+			 * Builds the attributes array.
+			 *
+			 * @access public
+			 * @since 1.0
+			 * @return array
+			 */
+			public function attr() {
+
+				$attr = fusion_builder_visibility_atts( $this->args['hide_on_mobile'], array(
+					'class' => 'fusion-video fusion-vimeo',
+				) );
+
+				if ( 'yes' == $this->args['center'] ) {
+					$attr['class'] .= ' center-video';
+				} else {
+					$attr['style'] = 'max-width:' . $this->args['width'] . 'px;max-height:' . $this->args['height'] . 'px;';
+				}
+
+				if ( 'true' == $this->args['autoplay'] || 'yes' == $this->args['autoplay'] ) {
+					$attr['data-autoplay'] = 1;
+				}
+
+				if ( $this->args['class'] ) {
+					$attr['class'] .= ' ' . $this->args['class'];
+				}
+
+				return $attr;
+
+			}
+
+			/**
+			 * Builds the video shortcode attributes.
+			 *
+			 * @access public
+			 * @since 1.0
+			 * @return array
+			 */
+			public function video_sc_attr() {
+
+				$attr = array(
+					'class' => 'video-shortcode',
+				);
+
+				if ( 'yes' == $this->args['center'] ) {
+					$attr['style'] = 'max-width:' . $this->args['width'] . 'px;max-height:' . $this->args['height'] . 'px;';
+				}
+
+				return $attr;
+
+			}
+
+			/**
+			 * Sets the necessary scripts.
+			 *
+			 * @access public
+			 * @since 1.1
+			 * @return void
+			 */
+			public function add_scripts() {
+
+				Fusion_Dynamic_JS::enqueue_script( 'fusion-video' );
+			}
+		}
 	}
 
-	/**
-	 * Render the shortcode.
-	 *
-	 * @access public
-	 * @since 1.0
-	 * @param  array  $args    Shortcode parameters.
-	 * @param  string $content Content between shortcode.
-	 * @return string          HTML output.
-	 */
-	function render( $args, $content = '' ) {
+	new FusionSC_Vimeo();
 
-		$defaults = FusionBuilder::set_shortcode_defaults(
-			array(
-				'hide_on_mobile' => fusion_builder_default_visibility( 'string' ),
-				'class'          => '',
-				'api_params'     => '',
-				'autoplay'       => 'no',
-				'center'         => 'no',
-				'height'         => 360,
-				'id'             => '',
-				'width'          => 600,
-			), $args
-		);
-
-		$defaults['height'] = FusionBuilder::validate_shortcode_attr_value( $defaults['height'], '' );
-		$defaults['width']  = FusionBuilder::validate_shortcode_attr_value( $defaults['width'], '' );
-
-		extract( $defaults );
-
-		self::$args = $defaults;
-
-		$protocol = ( is_ssl() ) ? 'https' : 'http';
-
-		// Make sure only the video ID is passed to the iFrame.
-		$pattern = '/(?:https?:\/\/)?(?:www\.)?vimeo.com\/(?:channels\/(?:\w+\/)?|groups\/([^\/]*)\/videos\/|album\/(\d+)\/video\/|)(\d+)(?:$|\/|\?)/';
-		preg_match( $pattern, $id, $matches );
-		if ( isset( $matches[3] ) ) {
-			$id = $matches[3];
-		}
-
-		$html  = '<div ' . FusionBuilder::attributes( 'vimeo-shortcode' ) . '>';
-		$html .= '<div ' . FusionBuilder::attributes( 'vimeo-shortcode-video-sc' ) . '>';
-		$html .= '<iframe src="' . $protocol . '://player.vimeo.com/video/' . $id . '?autoplay=0' . $api_params . '" width="' . $width . '" height="' . $height . '" allowfullscreen></iframe>';
-		$html .= '</div></div>';
-
-		return $html;
-
-	}
-
-	/**
-	 * Builds the attributes array.
-	 *
-	 * @access public
-	 * @since 1.0
-	 * @return array
-	 */
-	public function attr() {
-
-		$attr = fusion_builder_visibility_atts( self::$args['hide_on_mobile'], array(
-			'class' => 'fusion-video fusion-vimeo',
-		) );
-
-		if ( 'yes' == self::$args['center'] ) {
-			$attr['class'] .= ' center-video';
-		} else {
-			$attr['style'] = 'max-width:' . self::$args['width'] . 'px;max-height:' . self::$args['height'] . 'px;';
-		}
-
-		if ( 'true' == self::$args['autoplay'] || 'yes' == self::$args['autoplay'] ) {
-			$attr['data-autoplay'] = 1;
-		}
-
-		if ( self::$args['class'] ) {
-			$attr['class'] .= ' ' . self::$args['class'];
-		}
-
-		return $attr;
-
-	}
-
-	/**
-	 * Builds the video shortcode attributes.
-	 *
-	 * @access public
-	 * @since 1.0
-	 * @return array
-	 */
-	public function video_sc_attr() {
-
-		$attr = array(
-			'class' => 'video-shortcode',
-		);
-
-		if ( 'yes' == self::$args['center'] ) {
-			$attr['style'] = 'max-width:' . self::$args['width'] . 'px;max-height:' . self::$args['height'] . 'px;';
-		}
-
-		return $attr;
-
-	}
 }
-new FusionSC_Vimeo();
 
 /**
  * Map shortcode to Fusion Builder.
@@ -146,7 +164,7 @@ function fusion_element_vimeo() {
 		'name'       => esc_attr__( 'Vimeo', 'fusion-builder' ),
 		'shortcode'  => 'fusion_vimeo',
 		'icon'       => 'fusiona-vimeo2',
-		'preview'    => FUSION_BUILDER_PLUGIN_DIR . 'js/previews/fusion-vimeo-preview.php',
+		'preview'    => FUSION_BUILDER_PLUGIN_DIR . 'inc/templates/previews/fusion-vimeo-preview.php',
 		'preview_id' => 'fusion-builder-block-module-vimeo-preview-template',
 		'params'     => array(
 			array(
@@ -173,8 +191,8 @@ function fusion_element_vimeo() {
 				'description' => esc_attr__( 'Set to yes to make video autoplaying.', 'fusion-builder' ),
 				'param_name'  => 'autoplay',
 				'value'       => array(
-					esc_attr__( 'No', 'fusion-builder' )  => 'false',
-					esc_attr__( 'Yes', 'fusion-builder' ) => 'true',
+					'false' => esc_attr__( 'No', 'fusion-builder' ),
+					'true'  => esc_attr__( 'Yes', 'fusion-builder' ),
 				),
 				'default'     => 'false',
 			),

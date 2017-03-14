@@ -262,14 +262,21 @@
 	 */
 	fusionHistoryManager.updateButtons = function() {
 
-		// Undo button
-		$( '.fusion-builder-layout-buttons-undo' ).css( 'background', fusionHistoryManager.hasUndo() ? '#222222' : '' );
+		// Undo & History states buttons
+		if ( fusionHistoryManager.hasUndo() ) {
+			$( '.fusion-builder-layout-buttons-undo' ).addClass( 'fusion-history-has-step' );
+			$( '.fusion-builder-layout-buttons-history' ).addClass( 'fusion-history-has-step' );
+		} else {
+			$( '.fusion-builder-layout-buttons-undo' ).removeClass( 'fusion-history-has-step' );
+			$( '.fusion-builder-layout-buttons-history' ).removeClass( 'fusion-history-has-step' );
+		}
 
 		// Redo button
-		$( '.fusion-builder-layout-buttons-redo' ).css( 'background', fusionHistoryManager.hasRedo() ? '#222222' : '' );
-
-		// History states button
-		$( '.fusion-builder-layout-buttons-history' ).css( 'background', fusionHistoryManager.hasUndo() ? '#222222' : '' );
+		if ( fusionHistoryManager.hasRedo() ) {
+			$( '.fusion-builder-layout-buttons-redo' ).addClass( 'fusion-history-has-step' );
+		} else {
+			$( '.fusion-builder-layout-buttons-redo' ).removeClass( 'fusion-history-has-step' );
+		}
 	};
 
 })( jQuery );

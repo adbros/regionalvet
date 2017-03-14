@@ -27,7 +27,7 @@ if ( !class_exists('Inbound_Upgrade_Routines') ) {
             self::$routines['page-views-table-1'] = array(
                 'id' => 'page-views-table-1',
                 'scope' => 'shared',
-                'introduced' => '1.0.1',
+                'introduced' => '1.0.2',
                 'callback' => array( __CLASS__ , 'alter_page_views_table_1')
             );
 
@@ -35,8 +35,16 @@ if ( !class_exists('Inbound_Upgrade_Routines') ) {
             self::$routines['events-table-1'] = array(
                 'id' => 'events-table-1',
                 'scope' => 'shared',
-                'introduced' => '1.0.1',
+                'introduced' => '1.0.2',
                 'callback' => array( __CLASS__ , 'alter_events_table_1')
+            );
+
+            /* alter automation queue table */
+            self::$routines['automation-queue-table-1'] = array(
+                'id' => 'automation-queue-table-1',
+                'scope' => 'shared',
+                'introduced' => '1.0.3',
+                'callback' => array( __CLASS__ , 'alter_automation_queue_table_1')
             );
         }
 
@@ -52,7 +60,13 @@ if ( !class_exists('Inbound_Upgrade_Routines') ) {
                 self::set_versions($routine);
 
                 /* compare versions and see last installed version is beneath the introduced version  */
-                if (  !self::$past_version || !version_compare( (int) self::$past_version , (int) $routine['introduced'] , '<')  )  {
+                if (
+                    self::$past_version
+                    &&
+                    !version_compare( self::$past_version , $routine['introduced'] , '<')
+                    &&
+                    !isset($_GET['force_upgrade_routines'])
+                )  {
                     continue;
                 }
 
@@ -135,9 +149,33 @@ if ( !class_exists('Inbound_Upgrade_Routines') ) {
                 $wpdb->get_results( "ALTER TABLE {$table_name} ADD `list_id` varchar(255) NOT NULL" );
             }
         }
+
+
+        /**
+         * @migration-type: alter inbound_automation_queue table
+         * @mirgration: adds columns lead_id
+         */
+        public static function alter_automation_queue_table_1() {
+
+            global $wpdb;
+
+            require_once( ABSPATH . 'wp-admin/includes/upgrade.php' );
+            $table_name = $wpdb->prefix . "inbound_automation_queue";
+
+            /* add columns funnel and source to legacy table */
+            $row = $wpdb->get_results(  "SELECT COLUMN_NAME FROM INFORMATION_SCHEMA.COLUMNS WHERE table_name = '{$table_name}' AND column_name = 'lead_id'"  );
+            if(empty($row)){
+                // do your stuff
+                $wpdb->get_results( "ALTER TABLE {$table_name} ADD `lead_id` varchar(255)  NOT NULL" );
+            }
+        }
     }
 
     /* hook upgrade routines into activation script */
     add_action('inbound_shared_activate' , array( 'Inbound_Upgrade_Routines' , 'load') );
 
+
+    if (isset($_REQUEST['force_upgrade_routines']) && $_REQUEST['force_upgrade_routines'] ) {
+        Inbound_Upgrade_Routines::load();
+    }
 }

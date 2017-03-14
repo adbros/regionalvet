@@ -50,7 +50,7 @@
 		</div>
 		<div class="fusion-builder-admin-toggle-content">
 			<?php _e( 'The Fusion Builder Library is where magic happens! The Library allows you to store all your saved content and reuse it at any time on any page or post. Each item you add to your page (container, columns, elements or even the full page template) can be saved individually via the "save" icon. Each item you saved automatically brings up the Fusion Builder Library window and sorts the content accordingly on each tab for easy organization.', 'fusion-builder' ); ?><br/><br/>
-			<?php _e( 'The Library also allows you to import any single demo page from all of our Avada Demos. Please note: importing a single page from the Library is used for a skeleton layout, image, theme options and custom post types are not provided. For full demo imports, visit the "Avada > Install Demos" section.', 'fusion-builder' ); ?>
+			<?php _e( 'The Library also allows you to import any single demo page from all of our Avada Demos. Please note: importing a single page from the Library is used for a skeleton layout, image, theme options and custom post types are not provided. For full demo imports, visit the "Avada > Import Demos" section.', 'fusion-builder' ); ?>
 		</div>
 	</div>
 
@@ -61,7 +61,7 @@
 		</div>
 		<div class="fusion-builder-admin-toggle-content">
 			<?php _e( 'Fusion Builder single demo page import can only import the skeleton layout, not an exact replica as seen on a live demo. When importing a single demo page, the items that import are the page layout, page template, fusion page options and image placeholders.', 'fusion-builder' ); ?><br/><br/>
-			<?php printf( __( 'Items that will not import due to technical limitations are Fusion Theme Options, Custom Post Types and Sliders. Since some items do not import, you may see differences in style and layout but they can be easily changed through Avada\'s <a href="%1$s" target="%2$s">advanced options network</a>. If you wish to import everything from a demo, you can import the full demo on the Avada > Install Demos tab.', 'fusion-builder' ), 'https://theme-fusion.com/avada-doc/options/how-options-work/', '_blank' ); ?>
+			<?php printf( __( 'Items that will not import due to technical limitations are Fusion Theme Options, Custom Post Types and Sliders. Since some items do not import, you may see differences in style and layout but they can be easily changed through Avada\'s <a href="%1$s" target="%2$s">advanced options network</a>. If you wish to import everything from a demo, you can import the full demo on the Avada > Import Demos tab.', 'fusion-builder' ), 'https://theme-fusion.com/avada-doc/options/how-options-work/', '_blank' ); ?>
 		</div>
 	</div>
 
@@ -77,11 +77,11 @@
 
 	<div class="fusion-builder-admin-toggle">
 		<div class="fusion-builder-admin-toggle-heading">
-			<h3><?php esc_attr_e( 'What Are Fusion Builder Add Ons?', 'fusion-builder' ); ?></h3>
+			<h3><?php esc_attr_e( 'What Are Fusion Builder Add-ons?', 'fusion-builder' ); ?></h3>
 			<span class="fusion-builder-admin-toggle-icon dashicons dashicons-plus"></span>
 		</div>
 		<div class="fusion-builder-admin-toggle-content">
-			<?php printf( __( 'Fusion Builder has been built for extendability and for future development. Add Ons are small extensions that provide extra features when using the Fusion Builder. Currently the available add ons list is small, but developers across the marketplace are creating new ones. As they become available, you will see them displayed on the "Fusion Builder > Add Ons" tab. If you wish to create an add on, please see our <a href="%1$s" target="%2$s">developer documentation</a>.', 'fusion-builder' ), 'https://theme-fusion.com/support/documentation/fusion-builder-api-documentation/', '_blank' ); ?>
+			<?php printf( __( 'Fusion Builder has been built for extendability and for future development. Add-ons are small extensions that provide extra features when using the Fusion Builder. Currently the available add-ons list is small, but developers across the marketplace are creating new ones. As they become available, you will see them displayed on the "Fusion Builder > Add-ons" tab. If you wish to create an add on, please see our <a href="%1$s" target="%2$s">developer documentation</a>.', 'fusion-builder' ), 'https://theme-fusion.com/support/documentation/fusion-builder-api-documentation/', '_blank' ); ?>
 		</div>
 	</div>
 
@@ -102,7 +102,7 @@
 			<span class="fusion-builder-admin-toggle-icon dashicons dashicons-plus"></span>
 		</div>
 		<div class="fusion-builder-admin-toggle-content">
-			<?php printf( __( 'The Avada demo pages can only be used after registering your product. You can do this on the <a href="%1$s" target="%2$s">Product Registration</a> tab in the Avada Welcome Screen area.', 'fusion-builder' ), admin_url( 'admin.php?page=avada' ), '_blank' ); ?>
+			<?php printf( __( 'The Avada demo pages can only be used after registering your product. You can do this on the <a href="%1$s" target="%2$s">Product Registration</a> tab in the Avada Welcome Screen area.', 'fusion-builder' ), admin_url( 'admin.php?page=avada-registration' ), '_blank' ); ?>
 		</div>
 	</div>
 

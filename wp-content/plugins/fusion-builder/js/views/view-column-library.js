@@ -14,7 +14,8 @@ var FusionPageBuilder = FusionPageBuilder || {};
 			events: {
 				'click .fusion-builder-column-layouts li': 'addColumns',
 				'click .fusion_builder_custom_columns_load': 'addCustomColumn',
-				'click .fusion_builder_custom_sections_load': 'addCustomSection'
+				'click .fusion_builder_custom_sections_load': 'addCustomSection',
+				'click .fusion-builder-section-next-page': 'addNextPage'
 			},
 
 			initialize: function( attributes ) {
@@ -239,6 +240,42 @@ var FusionPageBuilder = FusionPageBuilder || {};
 						FusionPageBuilderEvents.trigger( 'fusion-element-cloned' );
 					}
 				});
+			},
+
+			addNextPage: function( event ) {
+				var parentID   = this.model.get( 'parent' ),
+				    parentView = FusionPageBuilderViewManager.getView( parentID ),
+				    targetContainer,
+				    moduleID,
+				    params = {};
+
+				if ( event ) {
+					event.preventDefault();
+				}
+
+				targetContainer = parentView.$el.prev( '.fusion_builder_container' );
+				FusionPageBuilderApp.targetContainerCID = targetContainer.find( '.fusion-builder-data-cid' ).data( 'cid' );
+				moduleID = FusionPageBuilderViewManager.generateCid();
+
+				this.collection.add( [ {
+					type: 'fusion_builder_next_page',
+					added: 'manually',
+					module_type: 'fusion_builder_next_page',
+					cid: moduleID,
+					params: params,
+					view: parentView,
+					appendAfter: targetContainer,
+					created: 'auto'
+				} ] );
+
+				if ( 'undefined' !== typeof parentView ) {
+					FusionPageBuilderApp.targetContainerCID = '';
+					parentView.removeContainer();
+				}
+
+				FusionPageBuilderEvents.trigger( 'fusion-columns-added' );
+				FusionPageBuilderEvents.trigger( 'fusion-element-cloned' );
+
 			}
 
 		} );

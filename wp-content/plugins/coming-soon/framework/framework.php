@@ -321,9 +321,9 @@ class SEED_CSP4_ADMIN
                             <br><br> -->
 
 
-                            <div class="postbox " style="background-color:#FAE6A4;color:#734726 !important; border-color:#734726 !important">
+                            <div class="postbox " style="background-color:#FAE6A4;color:#333 !important; border-color:#333 !important">
                                 <div class="handlediv" title="Click to toggle"><br /></div>
-                                <h3 class="hndle" style="color:#fff !important;border-color:#734726 !important; background-color:#734726"><span><i class="fa fa-star"></i>&nbsp;&nbsp;<?php _e('Yo-Yo-Yo, Why Go Pro?', 'coming-soon') ?></span></h3>
+                                <h3 class="hndle" style="color:#fff !important;border-color:#333 !important; background-color:#333"><span><i class="fa fa-star"></i>&nbsp;&nbsp;<?php _e('Yo-Yo-Yo, Why Go Pro?', 'coming-soon') ?></span></h3>
                                 <div class="inside">
                                     <div class="support-widget">
                                       <!--   <p>
@@ -345,7 +345,7 @@ class SEED_CSP4_ADMIN
                                             
                                              <li><i class="fa fa-check"></i> <strong>Give clients Instant Access with a Bypass Link
                                             </strong></li>
-                                            <li><hr style=" border-top: 1px solid #734726; border-bottom: none"></li>
+                                            <li><hr style=" border-top: 1px solid #333; border-bottom: none"></li>
                                             <li><strong>Plus lots more!</strong></li>
                                         </ul>
                                         <p>

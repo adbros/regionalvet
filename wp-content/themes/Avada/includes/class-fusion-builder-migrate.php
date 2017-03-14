@@ -1,4 +1,15 @@
 <?php
+/**
+ * Converts shortcode names from Fusion Core
+ * to a format that Fusion Builder will accept.
+ *
+ * @author     ThemeFusion
+ * @copyright  (c) Copyright by ThemeFusion
+ * @link       http://theme-fusion.com
+ * @package    Avada
+ * @subpackage Core
+ * @since      5.0.0
+ */
 
 // Do not allow directly accessing this file.
 if ( ! defined( 'ABSPATH' ) ) {
@@ -8,8 +19,6 @@ if ( ! defined( 'ABSPATH' ) ) {
 /**
  * Converts shortcode names from Fusion Core
  * to a format that Fusion Builder will accept.
- *
- * @since 5.0.0
  */
 class Fusion_Builder_Migrate {
 
@@ -42,6 +51,16 @@ class Fusion_Builder_Migrate {
 	 * @var string
 	 */
 	private static $avada_database_version = '';
+
+	/**
+	 * The Avada Theme Options option name.
+	 *
+	 * @static
+	 * @access private
+	 * @since 5.1.0
+	 * @var string
+	 */
+	private static $avada_option_name = '';
 
 	/**
 	 * The value of the $option_name setting.
@@ -240,15 +259,19 @@ class Fusion_Builder_Migrate {
 	 *
 	 * @access public
 	 * @since 5.0.0
-	 * @param string $avada_version The Avada Theme Version.
+	 * @param string $avada_version     The Avada Theme Version.
+	 * @param string $avada_option_name The option-name.
 	 */
-	public function __construct( $avada_version ) {
+	public function __construct( $avada_version, $avada_option_name ) {
 
 		if ( isset( $_GET['revert'] ) && '1' == $_GET['revert'] ) {
 			self::$revert = true;
 		}
 
+		add_action( 'save_post', array( $this, 'save_post_actions' ), 999, 2 );
+
 		self::$avada_database_version = $avada_version;
+		self::$avada_option_name = $avada_option_name;
 
 		if ( self::needs_migration() ) {
 
@@ -352,7 +375,7 @@ class Fusion_Builder_Migrate {
 	 */
 	public static function needs_migration() {
 
-		// Convert later was clicked on the spals screen.
+		// Convert later was clicked on the splash screen.
 		if ( is_admin() && isset( $_GET[ self::$slug ] ) && '0' == $_GET[ self::$slug ] && isset( $_GET['migrate_later'] ) && '1' == $_GET['migrate_later'] ) {
 			update_option( self::$option_name . '_converted', '1' );
 			return false;
@@ -394,7 +417,7 @@ class Fusion_Builder_Migrate {
 	 */
 	private function next_step_redirection( $advance = false ) {
 		// Set the post-type if not already set.
-		if ( ! isset( $_GET['step'] ) || ! in_array( $_GET['step'], array( 'query', 'convert', 'done' ) ) ) {
+		if ( ! isset( $_GET['step'] ) || ! in_array( wp_unslash( $_GET['step'] ), array( 'query', 'convert', 'done' ) ) ) {
 			return;
 		}
 
@@ -433,7 +456,7 @@ class Fusion_Builder_Migrate {
 			}
 		} elseif ( 'convert' === $_GET['step'] ) {
 			$revert = ( self::$revert ) ? '&revert=1' : '';
-			if ( 'posts' === $_GET['type'] ) {
+			if ( isset( $_GET['type'] ) && 'posts' === $_GET['type'] ) {
 				if ( empty( self::$option ) ) {
 					// It is now safe to remove the option.
 					delete_option( self::$option_name );
@@ -501,7 +524,7 @@ class Fusion_Builder_Migrate {
 			return;
 		}
 		if ( $_GET && isset( $_GET['post_type'] ) ) {
-			$this->current_post_type = $_GET['post_type'];
+			$this->current_post_type = sanitize_text_field( wp_unslash( $_GET['post_type'] ) );
 		}
 	}
 
@@ -659,7 +682,7 @@ class Fusion_Builder_Migrate {
 			'post_status'      => 'any',
 		);
 
-		$this->posts = avada_cached_get_posts( $args );
+		$this->posts = fusion_cached_get_posts( $args );
 	}
 
 	/**
@@ -796,10 +819,9 @@ class Fusion_Builder_Migrate {
 			<head>
 				<meta name="viewport" content="width=device-width" />
 				<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-				<title><?php echo $this->migration_page_title ?></title>
+				<title ><?php echo esc_attr( $this->migration_page_title ) ?></title >
 				<?php do_action( 'admin_print_styles' ); ?>
 				<?php do_action( 'admin_head' ); ?>
-				<link href='https://fonts.googleapis.com/css?family=Roboto:400,300,100' rel='stylesheet' type='text/css'>
 				<style>
 					<?php $this->get_migration_page_styles(); ?>
 				</style>
@@ -808,9 +830,9 @@ class Fusion_Builder_Migrate {
 			<body class="avada-setup wp-core-ui">
 				<div class="update-content">
 					<div class="avada-logo">
-						<img src="<?php echo Avada::$template_dir_url; ?>/assets/images/logo_migration.png" alt="<?php esc_html_e( 'Avada Logo', 'Avada' ); ?>" width="453" height="95">
+						<img src="<?php echo esc_url_raw( Avada::$template_dir_url ); ?>/assets/images/logo_migration.png" alt="<?php esc_html_e( 'Avada Logo', 'Avada' ); ?>" width="453" height="95">
 						<span class="avada-version">
-							<span class="avada-version-inner"><?php echo $version; ?></span>
+							<span class="avada-version-inner"><?php echo esc_attr( $version ); ?></span>
 						</span>
 					</div>
 					<div class="avada-content-wrapper">
@@ -1041,9 +1063,9 @@ class Fusion_Builder_Migrate {
 	 */
 	private function get_migration_page_welcome_message() {
 		if ( ! self::$revert ) {
-			printf( esc_html__( 'Avada 5.0 is an amazing update with new features, improvements and our brand new Fusion Builder. To enjoy Avada 5.0, conversion steps need to be performed. Please see below. Thank you for choosing Avada!', 'Avada' ),  Avada()->get_theme_version() );
+			printf( esc_html__( 'Avada 5.0 is an amazing update with new features, improvements and our brand new Fusion Builder. To enjoy Avada 5.0, conversion steps need to be performed. Please see below. Thank you for choosing Avada!', 'Avada' ),  esc_attr( Avada()->get_theme_version() ) );
 		} else {
-			esc_html_e( 'This is the reversion process. Please see below for further information.', 'avada' );
+			esc_html_e( 'This is the reversion process. Please see below for further information.', 'Avada' );
 		}
 	}
 
@@ -1060,15 +1082,14 @@ class Fusion_Builder_Migrate {
 			$query_class = ' avada-filled';
 		} elseif ( isset( $_GET['step'] ) && 'convert' === $_GET['step'] ) {
 			$query_class = $convert_class = ' avada-filled';
-			$slides_li_class = ' class="doing"';
 		} elseif ( isset( $_GET['step'] ) && 'done' === $_GET['step'] ) {
 			$query_class = $convert_class = $done_class = ' avada-filled';
 		}
 		?>
 		<div class="avada-overall-progress">
-			<div class="avada-progress-badge<?php echo $query_class; ?>"></div>
-			<div class="avada-progress-badge<?php echo $convert_class; ?>"></div>
-			<div class="avada-progress-badge<?php echo $done_class; ?>"></div>
+			<div class="avada-progress-badge<?php echo esc_attr( $query_class ); ?>"></div>
+			<div class="avada-progress-badge<?php echo esc_attr( $convert_class ); ?>"></div>
+			<div class="avada-progress-badge<?php echo esc_attr( $done_class ); ?>"></div>
 		</div>
 		<?php
 	}
@@ -1118,16 +1139,16 @@ class Fusion_Builder_Migrate {
 				<p><?php esc_html_e( 'Our newly built Fusion Builder is amazing and up to 5x faster. It needs to convert your old shortcodes to the new syntax. This will ensure all shortcodes use unique names, so there will be no conflicts with other plugins.', 'Avada' ); ?></p>
 				<p><?php echo wp_kses_post( __( 'Avada will search through your posts and pages and collect IDs of all pages using the old shortcodes and convert them to our new syntax. A backup is created of those pages and posts, to ensure all your data is fully secure.', 'Avada' ) ); ?></p>
 				<p><strong><?php esc_html_e( 'The process can take time, please be patient during conversion and DO NOT CLOSE THIS SCREEN!', 'Avada' ); ?></strong></p>
-				<p><?php printf( esc_html__( 'If the migration is not performed, you won\'t be able to use Avada %s unless you manually trigger the conversion at a later time through the WP admin area.', 'Avada' ), Avada()->get_normalized_theme_version() ); ?></p>
-				<p><?php printf( __( 'If you don\'t want your pages converted then please delete the new Avada folder and copy the old Avada folder to your server. If you did not backup your previous Avada theme folder, you can %s.', 'Avada' ), '<a href="https://theme-fusion.com/forums/topic/downloading-avada-4-0-3/" target="_blank">download Avada 4.0.3 here</a>' ); ?></p>
+				<p><?php printf( esc_html__( 'If the migration is not performed, you won\'t be able to use Avada %s unless you manually trigger the conversion at a later time through the WP admin area.', 'Avada' ), esc_attr( Avada()->get_normalized_theme_version() ) ); ?></p>
+				<p><?php printf( esc_attr__( 'If you don\'t want your pages converted then please delete the new Avada folder and copy the old Avada folder to your server. If you did not backup your previous Avada theme folder, you can %s.', 'Avada' ), '<a href="https://theme-fusion.com/forums/topic/downloading-avada-4-0-3/" target="_blank">download Avada 4.0.3 here</a>' ); ?></p>
 				<p><strong><?php esc_html_e( 'We recommend doing a full database backup before proceeding with conversion.', 'Avada' ); ?></strong></p>
-				<p><?php printf( esc_html__( 'By pressing the "Start Conversion" button below, you confirm that Avada should convert your posts and pages to the new shortcode syntax.', 'Avada' ), Avada()->get_theme_version() ); ?></p>
+				<p><?php printf( esc_html__( 'By pressing the "Start Conversion" button below, you confirm that Avada should convert your posts and pages to the new shortcode syntax.', 'Avada' ), esc_attr( Avada()->get_theme_version() ) ); ?></p>
 				<p><form><label><input id="confirm-reading" type="checkbox" name="confirm_reading" value="confirm_reading"><?php esc_html_e( 'I have read the above.', 'Avada' ); ?></label></form></p>
 			<?php else : ?>
 				<p><?php esc_html_e( 'You have already converted your shortcodes to the new Avada 5.0 structure, but have chosen to revert back to their previous state before you installed Avada 5.0. This process does not downgrade you to the previous version of Avada.', 'Avada' ); ?></p>
-				<p><?php printf( __( 'Once reversion is done, you can load a previous version of Avada onto your server. You can download %s here if you do not have a backup of your previous theme.', 'Avada' ), '<a href="https://theme-fusion.com/forums/topic/downloading-avada-4-0-3/">' . esc_attr__( 'Avada 4.0.3', 'avada' ) . '</a>' ); ?></p>
+				<p><?php printf( esc_attr__( 'Once reversion is done, you can load a previous version of Avada onto your server. You can download %s here if you do not have a backup of your previous theme.', 'Avada' ), '<a href="https://theme-fusion.com/forums/topic/downloading-avada-4-0-3/">' . esc_attr__( 'Avada 4.0.3', 'Avada' ) . '</a>' ); ?></p>
 				<p><strong><?php esc_html_e( 'The process can take time, please be patient during reversion and DO NOT CLOSE THIS SCREEN!', 'Avada' ); ?></strong></p>
-				<p><?php printf( esc_html__( 'By pressing the "Start Reversion" button below, you confirm that Avada should revert your posts and pages to the previous syntax.', 'Avada' ), Avada()->get_theme_version() ); ?></p>
+				<p><?php printf( esc_html__( 'By pressing the "Start Reversion" button below, you confirm that Avada should revert your posts and pages to the previous syntax.', 'Avada' ), esc_attr( Avada()->get_theme_version() ) ); ?></p>
 				<p><form><label><input id="confirm-reading" type="checkbox" name="confirm_reading" value="confirm_reading"><?php esc_html_e( 'I have read the above.', 'Avada' ); ?></label></form></p>
 			<?php endif; ?>
 		<?php elseif ( isset( $_GET['step'] ) && 'query' === $_GET['step'] ) : ?>
@@ -1159,15 +1180,15 @@ class Fusion_Builder_Migrate {
 			}
 			?>
 			<?php if ( ! self::$revert ) : ?>
-				<?php printf( esc_attr__( 'Remaining items to convert: %s', 'Avada' ), $still_to_convert ); ?>
+				<?php printf( esc_attr__( 'Remaining items to convert: %s', 'Avada' ), (int) $still_to_convert ); ?>
 			<?php else : ?>
-				<?php printf( esc_attr__( 'Remaining items to revert: %s', 'Avada' ), $still_to_convert ); ?>
+				<?php printf( esc_attr__( 'Remaining items to revert: %s', 'Avada' ), (int) $still_to_convert ); ?>
 			<?php endif; ?>
 		<?php elseif ( isset( $_GET['step'] ) && 'done' === $_GET['step'] ) : ?>
 			<?php if ( ! self::$revert ) : ?>
 				<?php esc_attr_e( 'All needed posts have been converted to the new Fusion Builder syntax. You can now update Fusion Core and install Fusion Builder plugin.', 'Avada' ); ?>
 			<?php else : ?>
-				<?php printf( __( 'All needed posts have been reverted to the previous syntax. You can now roll-back to <a href="%s" target="_blank">Avada 4.0.3</a>.', 'Avada' ), 'https://theme-fusion.com/forums/topic/downloading-avada-4-0-3/' ); ?>
+				<?php printf( esc_attr__( 'All needed posts have been reverted to the previous syntax. You can now roll-back to %s.', 'Avada' ), '<a href="https://theme-fusion.com/forums/topic/downloading-avada-4-0-3/" target="_blank">Avada 4.0.3</a>' ); ?>
 			<?php endif; ?>
 		<?php endif;
 	}
@@ -1214,12 +1235,12 @@ class Fusion_Builder_Migrate {
 					<?php
 					$li_class = '';
 					if ( array_search( $post_type, $this->post_types ) < array_search( $this->current_post_type, $this->post_types ) ) {
-						$li_class = ' class="done"';
+						$li_class = 'done';
 					} elseif ( array_search( $post_type, $this->post_types ) == array_search( $this->current_post_type, $this->post_types ) ) {
-						$li_class = ' class="doing"';
+						$li_class = 'doing';
 					}
 					?>
-					<li<?php echo $li_class; ?>>
+					<li class="<?php echo esc_attr( $li_class ); ?>">
 						<span class="content"><?php printf( esc_attr__( 'Scanning posts of post type "%1$s". Total posts: %2$s.', 'Avada' ), esc_attr( $post_type ), absint( $this->total_posts_count[ $post_type ] ) ); ?></span>
 					</li>
 				<?php endforeach; ?>
@@ -1228,33 +1249,33 @@ class Fusion_Builder_Migrate {
 		<?php elseif ( isset( $_GET['step'] ) && 'convert' === $_GET['step'] ) : ?>
 			<?php
 			$posts_li_class = $slides_li_class = $widgets_li_class = $theme_options_li_class = '';
-			if ( 'posts' === $_GET['type'] ) {
-				$posts_li_class = ' class="doing"';
-			} elseif ( 'slides' === $_GET['type'] ) {
-				$posts_li_class = ' class="done"';
-				$slides_li_class = ' class="doing"';
-			} elseif ( 'widgets' === $_GET['type'] ) {
-				$posts_li_class = ' class="done"';
-				$slides_li_class = ' class="done"';
-				$widgets_li_class = ' class="doing"';
+			if ( isset( $_GET['type'] ) && 'posts' === $_GET['type'] ) {
+				$posts_li_class = 'doing';
+			} elseif ( isset( $_GET['type'] ) && 'slides' === $_GET['type'] ) {
+				$posts_li_class  = 'done';
+				$slides_li_class = 'doing';
+			} elseif ( isset( $_GET['type'] ) && 'widgets' === $_GET['type'] ) {
+				$posts_li_class   = 'done';
+				$slides_li_class  = 'done';
+				$widgets_li_class = 'doing';
 			} else {
-				$posts_li_class = ' class="done"';
-				$slides_li_class = ' class="done"';
-				$widgets_li_class = ' class="done"';
-				$theme_options_li_class = ' class="doing"';
+				$posts_li_class         = 'done';
+				$slides_li_class        = 'done';
+				$widgets_li_class       = 'done';
+				$theme_options_li_class = 'doing';
 			}
 			?>
 			<ul class="tasks-list">
 				<?php if ( ! self::$revert ) : ?>
-					<li<?php echo $posts_li_class; ?>><span class="content"><?php esc_html_e( 'Converting posts.' ,'Avada' ); ?></span></li>
-					<li<?php echo $slides_li_class; ?>><span class="content"><?php esc_html_e( 'Converting slides.' ,'Avada' ); ?></span></li>
-					<li<?php echo $widgets_li_class; ?>><span class="content"><?php esc_html_e( 'Converting widgets.' ,'Avada' ); ?></span></li>
-					<li<?php echo $theme_options_li_class; ?>><span class="content"><?php esc_html_e( 'Converting theme options.' ,'Avada' ); ?></span></li>
+					<li class="<?php echo esc_attr( $posts_li_class ); ?>"><span class="content"><?php esc_html_e( 'Converting posts.' ,'Avada' ); ?></span></li>
+					<li class="<?php echo esc_attr( $slides_li_class ); ?>"><span class="content"><?php esc_html_e( 'Converting slides.' ,'Avada' ); ?></span></li>
+					<li class="<?php echo esc_attr( $widgets_li_class ); ?>"><span class="content"><?php esc_html_e( 'Converting widgets.' ,'Avada' ); ?></span></li>
+					<li class="<?php echo esc_attr( $theme_options_li_class ); ?>"><span class="content"><?php esc_html_e( 'Converting theme options.' ,'Avada' ); ?></span></li>
 				<?php else : ?>
-					<li<?php echo $posts_li_class; ?>><span class="content"><?php esc_html_e( 'Reverting posts.' ,'Avada' ); ?></span></li>
-					<li<?php echo $slides_li_class; ?>><span class="content"><?php esc_html_e( 'Reverting slides.' ,'Avada' ); ?></span></li>
-					<li<?php echo $widgets_li_class; ?>><span class="content"><?php esc_html_e( 'Reverting widgets.' ,'Avada' ); ?></span></li>
-					<li<?php echo $theme_options_li_class; ?>><span class="content"><?php esc_html_e( 'Reverting theme options.' ,'Avada' ); ?></span></li>
+					<li class="<?php echo esc_attr( $posts_li_class ); ?>"><span class="content"><?php esc_html_e( 'Reverting posts.' ,'Avada' ); ?></span></li>
+					<li class="<?php echo esc_attr( $slides_li_class ); ?>"><span class="content"><?php esc_html_e( 'Reverting slides.' ,'Avada' ); ?></span></li>
+					<li class="<?php echo esc_attr( $widgets_li_class ); ?>"><span class="content"><?php esc_html_e( 'Reverting widgets.' ,'Avada' ); ?></span></li>
+					<li class="<?php echo esc_attr( $theme_options_li_class ); ?>"><span class="content"><?php esc_html_e( 'Reverting theme options.' ,'Avada' ); ?></span></li>
 				<?php endif; ?>
 			</ul>
 		<?php endif;
@@ -2252,9 +2273,9 @@ class Fusion_Builder_Migrate {
 		}
 
 		$excerpt_length = fusion_get_page_option( 'pyre_portfolio_excerpt', $id );
-	    if ( ! $excerpt_length ) {
+		if ( ! $excerpt_length ) {
 			$excerpt_length = Avada()->settings->get( 'excerpt_length_portfolio' );
-	    }
+		}
 
 		// If single grid, make sure to set to grid with text, text on side.
 		if ( '1' === $columns && 'grid' === $layout ) {
@@ -2710,18 +2731,19 @@ class Fusion_Builder_Migrate {
 	 */
 	private function convert_shortcode_names_in_theme_options() {
 
-		// Get the original option name.
-		$original_option_name = Avada::get_original_option_name();
+		global $fusion_library;
 
-		// The $original_option_name will be used
-		// regardless if this is a multilingual site or not
-		// so the first thing we'll be converting is that.
-		$option_name = Avada::get_option_name();
+		$option_name = self::$avada_option_name;
 		$options     = get_option( $option_name, array() );
 
 		// Revert options?
 		if ( self::$revert ) {
 			$backed_up_options = get_option( $option_name . '_500_backup', array() );
+
+			if ( ! $backed_up_options && 'fusion_options' === $option_name ) {
+				$backed_up_options = get_option( 'avada_theme_options_500_backup', false );
+			}
+
 			if ( ! empty( $backed_up_options ) ) {
 				update_option( $option_name, $backed_up_options );
 			}
@@ -2744,12 +2766,12 @@ class Fusion_Builder_Migrate {
 
 		// Is this a multilingual site?
 		// If it is, then we need to convert options on a per-language basis.
-		$available_languages = Avada_Multilingual::get_available_languages();
+		$available_languages = Fusion_Multilingual::get_available_languages();
 		if ( ! empty( $available_languages ) ) {
 			foreach ( $available_languages as $language ) {
 
 				// The option name.
-				$option_name = $original_option_name . '_' . $language;
+				$option_name = self::$avada_option_name . '_' . $language;
 
 				// Get the options for that language.
 				$options = get_option( $option_name, array() );
@@ -2905,7 +2927,7 @@ class Fusion_Builder_Migrate {
 			);
 
 			// The query to get posts that meet our criteria.
-			$posts = avada_cached_get_posts( $args );
+			$posts = fusion_cached_get_posts( $args );
 
 			if ( $posts ) {
 				// Remove backup data for those posts.
@@ -2929,6 +2951,24 @@ class Fusion_Builder_Migrate {
 				delete_option( 'scheduled_avada_fusionbuilder_migration_cleanups' );
 				delete_option( 'avada_migration_cleanup_id' );
 			}
+		}
+	}
+
+	/**
+	 * WPML Hack.
+	 *
+	 * @param int     $pidd The post ID.
+	 * @param WP_Post $post The post object.
+	 */
+	public function save_post_actions( $pidd, $post ) {
+
+		global $wpml_root_page_actions, $wpml_post_translations;
+
+		if ( $wpml_root_page_actions ) {
+			remove_action( 'save_post', array( $wpml_root_page_actions, 'wpml_home_url_save_post_actions' ), 0, 2 );
+		}
+		if ( $wpml_post_translations ) {
+			remove_action( 'save_post', array( $wpml_post_translations, 'save_post_actions' ), 100, 2 );
 		}
 	}
 }

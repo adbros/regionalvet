@@ -49,6 +49,11 @@ var FusionPageBuilder = FusionPageBuilder || {};
 					event.preventDefault();
 				}
 
+				if ( true === FusionPageBuilderApp.layoutIsSaving ) {
+					return;
+				}
+				FusionPageBuilderApp.layoutIsSaving = true;
+
 				if ( '' !== elementName ) {
 
 					$.ajax( {
@@ -64,6 +69,7 @@ var FusionPageBuilder = FusionPageBuilder || {};
 							fusion_layout_new_cat: 'elements'
 						},
 						complete: function( data ) {
+							FusionPageBuilderApp.layoutIsSaving = false;
 							layoutsContainer.prepend( data.responseText );
 							$( '.fusion-save-element-fields' ).remove();
 							emptyMessage.hide();

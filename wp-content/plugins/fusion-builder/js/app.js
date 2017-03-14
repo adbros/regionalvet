@@ -120,6 +120,7 @@ var FusionPageBuilderEvents = _.extend( {}, Backbone.Events );
 				this.fusion_load_nonce         = fusionBuilderConfig.fusion_load_nonce;
 				this.fusion_builder_plugin_dir = fusionBuilderConfig.fusion_builder_plugin_dir;
 				this.layoutIsLoading           = false;
+				this.layoutIsSaving            = false;
 				this.layoutIsDeleting          = false;
 				this.parentRowId               = '';
 				this.parentColumnId            = '';
@@ -129,6 +130,7 @@ var FusionPageBuilderEvents = _.extend( {}, Backbone.Events );
 				this.blankPage                 = '';
 				this.newLayoutLoaded           = false;
 				this.newContainerAdded         = false;
+				this.fullWidth                 = fusionBuilderConfig.full_width;
 
 				// Shortcode Generator
 				this.shortcodeGenerator                  = '';
@@ -388,6 +390,10 @@ var FusionPageBuilderEvents = _.extend( {}, Backbone.Events );
 					return;
 				}
 
+				if ( $uploadButton.hasClass( 'hide-edit-buttons' ) ) {
+					return;
+				}
+
 				if ( '' === imageURL ) {
 					if ( $preview.length ) {
 						$preview.remove();
@@ -417,7 +423,12 @@ var FusionPageBuilderEvents = _.extend( {}, Backbone.Events );
 				$uploadButton.click( function( event ) {
 
 					var $thisEl,
-					    fileFrame;
+					    fileFrame,
+					    defaultParam,
+					    multiUpload = false,
+							multiImages = false,
+							multiImageContainer,
+							multiImageInput;
 
 					if ( event ) {
 						event.preventDefault();
@@ -425,12 +436,24 @@ var FusionPageBuilderEvents = _.extend( {}, Backbone.Events );
 
 					$thisEl = $( this );
 
+					// If its a multi upload element, clone default params.
+					if ( 'fusion-multiple-upload' === $thisEl.data( 'id' ) ) {
+						multiUpload = true;
+						defaultParam = fusionAllElements[ $thisEl.data( 'element' ) ].params[ $thisEl.data( 'param' ) ].value;
+					}
+
+					if ( 'fusion-multiple-images' === $thisEl.data( 'id' ) ) {
+						multiImages = true;
+						multiImageContainer = jQuery( $thisEl.next( '.fusion-multiple-image-container' ) )[0];
+						multiImageInput = jQuery( $thisEl ).prev( '.fusion-multi-image-input' );
+					}
+
 					fileFrame = wp.media.frames.file_frame = wp.media({
 						library: {
 							type: $thisEl.data( 'type' )
 						},
 						title: $thisEl.data( 'title' ),
-						multiple: false,
+						multiple: ( multiUpload || multiImages ) ? true : false,
 						frame: 'post',
 						className: 'media-frame mode-select fusion-builder-media-dialog',
 						displayUserSettings: false,
@@ -441,21 +464,67 @@ var FusionPageBuilderEvents = _.extend( {}, Backbone.Events );
 					// Select currently active image automatically.
 					fileFrame.on( 'open', function() {
 						var selection = fileFrame.state().get( 'selection' ),
-							id = $thisEl.parents( '.fusion-builder-module-settings' ).find( '#image_id' ).val(),
+						    attachment,
+						    ids,
+						    id;
+
+						if ( multiImages ) {
+							ids = multiImageInput.val().split( ',' );
+
+							if ( ids ) {
+								$( '.fusion-builder-media-dialog' ).addClass( 'hide-menu' );
+								jQuery.each( ids, function( index, id ) {
+									if ( '' !== id && 'NaN' !== id ) {
+										id = parseInt( id );
+										attachment = wp.media.attachment( id );
+										attachment.fetch();
+										selection.add( attachment ? [ attachment ] : [] );
+									}
+								} );
+							}
+						} else {
+							id = $thisEl.parents( '.fusion-builder-module-settings' ).find( '#image_id' ).val();
 							attachment = wp.media.attachment( id );
 
-						$( '.fusion-builder-media-dialog' ).addClass( 'hide-menu' );
-
-						attachment.fetch();
-						selection.add( attachment ? [ attachment ] : [] );
+							if ( id ) {
+								$( '.fusion-builder-media-dialog' ).addClass( 'hide-menu' );
+								attachment.fetch();
+								selection.add( attachment ? [ attachment ] : [] );
+							}
+						}
 					});
 
 					fileFrame.on( 'select insert', function() {
 
 						var imageURL,
 							imageID,
-							state = fileFrame.state();
+							imageIDs,
+							state = fileFrame.state(),
+							multiImageHtml = '',
+							firstElementNode,
+							firstElement;
 
+						imageIDs = state.get( 'selection' ).map( function( attachment ) {
+							return attachment.id;
+						} );
+
+						// If its a multi image element, add the images container and IDs to input field.
+						if ( multiImages ) {
+							multiImageInput.val( imageIDs );
+						}
+
+						// Remove default item.
+						if ( multiUpload ) {
+							firstElementNode = jQuery( document ).find( '.fusion-builder-sortable-options li:first-child' );
+							if ( firstElementNode.length ) {
+								firstElement = FusionPageBuilderElements.find( function( model ) {
+									return model.get( 'cid' ) == firstElementNode.data( 'cid' );
+								} );
+								if ( firstElement && undefined === firstElement.attributes.params[ $thisEl.data( 'param' ) ] ) {
+									jQuery( document ).find( '.fusion-builder-sortable-options li:first-child .fusion-builder-multi-setting-remove' ).trigger( 'click' );
+								}
+							}
+						}
 						state.get( 'selection' ).map( function( attachment ) {
 							var element = attachment.toJSON();
 							var display = state.display( attachment ).toJSON();
@@ -466,16 +535,35 @@ var FusionPageBuilderEvents = _.extend( {}, Backbone.Events );
 							} else if ( element.url ) {
 								imageURL = element.url;
 							}
+
+							if ( multiImages ) {
+								multiImageHtml += '<div class="fusion-multi-image" data-image-id="' + imageID + '">';
+								multiImageHtml += '<img src="' + imageURL + '"/>';
+								multiImageHtml += '<span class="fusion-multi-image-remove dashicons dashicons-no-alt"></span>';
+								multiImageHtml += '</div>';
+							}
+
+							// If its a multi upload element, add the image to defaults and trigger a new item to be added.
+							if ( multiUpload ) {
+
+								fusionAllElements[ $thisEl.data( 'element' ) ].params[ $thisEl.data( 'param' ) ].value = imageURL;
+								jQuery( '.fusion-builder-add-multi-child' ).trigger( 'click' );
+								FusionPageBuilderEvents.trigger( 'fusion-multi-child-update-preview' );
+								fusionAllElements[ $thisEl.data( 'element' ) ].params[ $thisEl.data( 'param' ) ].value = defaultParam;
+							}
 						} );
 
-						$thisEl.siblings( '.fusion-builder-upload-field' ).val( imageURL ).trigger( 'change' );
+						jQuery( multiImageContainer ).html( multiImageHtml );
+						if ( ! multiUpload && ! multiImages ) {
+							$thisEl.siblings( '.fusion-builder-upload-field' ).val( imageURL ).trigger( 'change' );
 
-						// Set image id.
-						if ( $( '#image_id' ).length ) {
-							$( '#image_id' ).val( imageID );
+							// Set image id.
+							if ( $( '#image_id' ).length ) {
+								$( '#image_id' ).val( imageID );
+							}
+
+							FusionPageBuilderApp.fusionBuilderImagePreview( $thisEl );
 						}
-
-						FusionPageBuilderApp.fusionBuilderImagePreview( $thisEl );
 					} );
 
 					fileFrame.open();
@@ -490,6 +578,88 @@ var FusionPageBuilderEvents = _.extend( {}, Backbone.Events );
 				$uploadButton.siblings( '.fusion-builder-upload-field' ).each( function() {
 					FusionPageBuilderApp.fusionBuilderImagePreview( $( this ).siblings( '.fusion-builder-upload-button' ) );
 				} );
+
+				jQuery( 'body' ).on( 'click', '.fusion-multi-image-remove', function( e ) {
+					var input = jQuery( this ).parents( '.fusion-multiple-upload-images' ).find( '.fusion-multi-image-input' ),
+					    imageIDs,
+							imageID,
+							imageIndex;
+					imageID = jQuery( this ).parent( '.fusion-multi-image' ).data( 'image-id' );
+					imageIDs = input.val().split( ',' ).map( function( v ) {
+						return parseInt( v );
+					} );
+					imageIndex = imageIDs.indexOf( imageID );
+					if ( -1 !== imageIndex ) {
+						imageIDs.splice( imageIndex, 1 );
+					}
+					imageIDs = imageIDs.join( ',' );
+					input.val( imageIDs );
+					jQuery( this ).parent( '.fusion-multi-image' ).remove();
+				} );
+			},
+
+			fusionBuilderActivateLinkSelector: function( $linkButton ) {
+				var $linkSubmit = jQuery( '#wp-link-submit' ),
+					$linkTitle = jQuery( '.wp-link-text-field' ),
+					$linkTarget = jQuery( '.link-target' ),
+					$fusionLinkSubmit = jQuery( '<input type="button" name="fusion-link-submit" id="fusion-link-submit" class="button-primary" value="Set Link">' ),
+					$input,
+					$linkDialog,
+					$url,
+					wpLinkL10n = window.wpLinkL10n;
+
+				jQuery( $linkButton ).click( function( e ) {
+					$fusionLinkSubmit.insertBefore( $linkSubmit );
+					$input = jQuery( e.target ).prev( '.fusion-builder-link-field' );
+					$url = $input.val();
+					$linkSubmit.hide();
+					$linkTitle.hide();
+					$linkTarget.hide();
+					$fusionLinkSubmit.show();
+					$linkDialog = ! window.wpLink && $.fn.wpdialog && jQuery( '#wp-link' ).length ? {
+						$link: ! 1,
+						open: function() {
+							this.$link = jQuery( '#wp-link' ).wpdialog({
+								title: wpLinkL10n.title,
+								width: 480,
+								height: 'auto',
+								modal: ! 0,
+								dialogClass: 'wp-dialog',
+								zIndex: 3e5
+							});
+						},
+						close: function() {
+							this.$link.wpdialog( 'close' );
+						}
+					} : window.wpLink;
+					$linkDialog.fusionUpdateLink = function( $fusionLinkSubmit ) {
+						e.preventDefault();
+						e.stopImmediatePropagation();
+						e.stopPropagation();
+						$url = jQuery( '#wp-link-url' ).length ? jQuery( '#wp-link-url' ).val() : jQuery( '#url-field' ).val();
+						$input.val( $url );
+						$linkSubmit.show();
+						$linkTitle.show();
+						$linkTarget.show();
+						$fusionLinkSubmit.remove();
+						jQuery( '#wp-link-cancel' ).unbind( 'click' );
+						$linkDialog.close();
+						window.wpLink.textarea = '';
+					},
+					$linkDialog.open( 'content' );
+					jQuery( '#wp-link-url' ).val( $url );
+				});
+
+				jQuery( 'body' ).on( 'click', '#fusion-link-submit', function( e ) {
+					$linkDialog.fusionUpdateLink( jQuery( this ) );
+				});
+
+				jQuery( 'body' ) .on( 'click', '#wp-link-cancel, #wp-link-close, #wp-link-backdrop', function( e ) {
+					$linkSubmit.show();
+					$linkTitle.show();
+					$linkTarget.show();
+					$fusionLinkSubmit.remove();
+				});
 			},
 
 			fusionBuilderSetContent: function( textareaID, content ) {
@@ -909,7 +1079,7 @@ var FusionPageBuilderEvents = _.extend( {}, Backbone.Events );
 			sortableContainers: function() {
 				this.$el.sortable( {
 					handle: '.fusion-builder-section-header',
-					items: '.fusion_builder_container',
+					items: '.fusion_builder_container, .fusion-builder-next-page',
 					cancel: '.fusion-builder-section-name, .fusion-builder-settings, .fusion-builder-clone, .fusion-builder-remove, .fusion-builder-section-add, .fusion-builder-add-element, .fusion-builder-insert-column, #fusion_builder_controls, .fusion-builder-save-element',
 					cursor: 'move',
 					update: function( event, ui ) {
@@ -998,6 +1168,9 @@ var FusionPageBuilderEvents = _.extend( {}, Backbone.Events );
 
 					// Add container if missing.
 					textNodes = wp.shortcode.replace( 'fusion_builder_container', textNodes, function( tag ) {
+						return '|';
+					});
+					textNodes = wp.shortcode.replace( 'fusion_builder_next_page', textNodes, function( tag ) {
 						return '|';
 					});
 					textNodes = textNodes.trim().split( '|' );
@@ -1168,6 +1341,8 @@ var FusionPageBuilderEvents = _.extend( {}, Backbone.Events );
 					    dependencyOption,
 					    dependencyOptionValue,
 					    elementContent,
+					    alpha,
+					    paging,
 
 						// Check for shortcodes inside shortcode content
 						shortcodesInContent = 'undefined' !== typeof shortcodeContent && '' !== shortcodeContent && shortcodeContent.match( regExp ),
@@ -1185,11 +1360,11 @@ var FusionPageBuilderEvents = _.extend( {}, Backbone.Events );
 						allow_generator: allowGenerator
 					};
 
-					if ( 'fusion_builder_container' !== shortcodeName ) {
+					if ( 'fusion_builder_container' !== shortcodeName || 'fusion_builder_next_page' !== shortcodeName ) {
 						elementSettings.parent = parentCID;
 					}
 
-					if ( 'fusion_builder_container' !== shortcodeName && 'fusion_builder_row' !== shortcodeName && 'fusion_builder_column' !== shortcodeName && 'fusion_builder_column_inner' !== shortcodeName && 'fusion_builder_row_inner' !== shortcodeName  && 'fusion_builder_blank_page' !== shortcodeName ) {
+					if ( 'fusion_builder_container' !== shortcodeName && 'fusion_builder_row' !== shortcodeName && 'fusion_builder_column' !== shortcodeName && 'fusion_builder_column_inner' !== shortcodeName && 'fusion_builder_row_inner' !== shortcodeName  && 'fusion_builder_blank_page' !== shortcodeName && 'fusion_builder_next_page' !== shortcodeName ) {
 
 						if ( -1 !== shortcodeName.indexOf( 'fusion_' ) ||
 							 -1 !== shortcodeName.indexOf( 'layerslider' ) ||
@@ -1231,6 +1406,21 @@ var FusionPageBuilderEvents = _.extend( {}, Backbone.Events );
 									prefixedAttributes.params.button_gradient_bottom_color_hover = prefixedAttributes.params.button_gradient_top_color_hover = shortcodeAttributes.named[ key ].replace( 'transparent', 'rgba(255,255,255,0)' );
 								}
 							}
+							if ( 'overlay_color' === key && '' !== shortcodeAttributes.named[ key ] && 'fusion_builder_container' === shortcodeName ) {
+								delete prefixedAttributes.params[ prefixedKey ];
+								alpha = ( 'undefined' !== typeof shortcodeAttributes.named.overlay_opacity ) ? shortcodeAttributes.named.overlay_opacity : 1;
+								prefixedAttributes.params.background_color = jQuery.Color( shortcodeAttributes.named[ key ] ).alpha( alpha ).toRgbaString();
+							}
+							if ( 'overlay_opacity' === key ) {
+								delete prefixedAttributes.params[ prefixedKey ];
+							}
+							if ( 'scrolling' === key && 'fusion_blog' === shortcodeName ) {
+								delete prefixedAttributes.params.paging;
+								paging = ( 'undefined' !== typeof shortcodeAttributes.named.paging ) ? shortcodeAttributes.named.paging : '';
+								if ( 'no' === paging && 'pagination' == shortcodeAttributes.named.scrolling ) {
+									prefixedAttributes.params.scrolling = 'no';
+								}
+							}
 						}
 
 						elementSettings = _.extend( elementSettings, prefixedAttributes );
@@ -1255,7 +1445,7 @@ var FusionPageBuilderEvents = _.extend( {}, Backbone.Events );
 					}
 
 					if ( shortcodesInContent ) {
-						if ( 'fusion_builder_container' !== shortcodeName && 'fusion_builder_row' !== shortcodeName && 'fusion_builder_row_inner' !== shortcodeName && 'fusion_builder_column' !== shortcodeName && 'fusion_builder_column_inner' !== shortcodeName ) {
+						if ( 'fusion_builder_container' !== shortcodeName && 'fusion_builder_row' !== shortcodeName && 'fusion_builder_row_inner' !== shortcodeName && 'fusion_builder_column' !== shortcodeName && 'fusion_builder_column_inner' !== shortcodeName && 'fusion_builder_next_page' !== shortcodeName ) {
 							elementSettings.params.element_content = shortcodeContent;
 						}
 					}
@@ -1388,12 +1578,19 @@ var FusionPageBuilderEvents = _.extend( {}, Backbone.Events );
 							viewSettings.className = 'fusion-builder-column fusion-builder-column-outer fusion-builder-column-' + element.get( 'layout' );
 							view = new FusionPageBuilder.ColumnView( viewSettings );
 
+							// This column was cloned
+							if ( ! _.isUndefined( element.get( 'cloned' ) ) && true === element.get( 'cloned' ) ) {
+								element.targetElement = view.$el;
+								element.unset( 'cloned' );
+							}
+
 							FusionPageBuilderViewManager.addView( element.get( 'cid' ), view );
 
 							if ( ! _.isUndefined( element.get( 'targetElement' ) ) && 'undefined' === typeof element.get( 'from' ) ) {
 								element.get( 'targetElement' ).after( view.render().el );
 							} else {
 								FusionPageBuilderViewManager.getView( element.get( 'parent' ) ).$el.find( '.fusion-builder-row-container' ).append( view.render().el );
+								element.unset( 'from' );
 							}
 						}
 						break;
@@ -1421,11 +1618,26 @@ var FusionPageBuilderEvents = _.extend( {}, Backbone.Events );
 
 							view = new FusionPageBuilder.MultiElementSortableChild( viewSettings );
 
+							element.targetElement = view.$el;
+
 							element.attributes.view.child_views.push( view );
 
-							FusionPageBuilderViewManager.getView( element.get( 'parent' ) ).$el.find( '.fusion-builder-sortable-options' ).append( view.render().el );
-
 							FusionPageBuilderViewManager.addView( element.get( 'cid' ), view );
+
+							if ( ! _.isUndefined( element.get( 'targetElement' ) ) ) {
+								element.get( 'targetElement' ).after( view.render().el );
+
+							} else {
+								FusionPageBuilderViewManager.getView( element.get( 'parent' ) ).$el.find( '.fusion-builder-sortable-options' ).append( view.render().el );
+							}
+
+							// This child was cloned
+							if ( ! _.isUndefined( element.get( 'titleLabel' ) ) ) {
+								if ( ! _.isUndefined( element.get( 'cloned' ) ) ) {
+									view.$el.find( '.multi-element-child-name' ).text( element.get( 'titleLabel' ) );
+								}
+								element.unset( 'cloned' );
+							}
 
 						// Standard element
 						} else {
@@ -1502,6 +1714,22 @@ var FusionPageBuilderEvents = _.extend( {}, Backbone.Events );
 
 						break;
 
+					case 'fusion_builder_next_page':
+						view = new FusionPageBuilder.NextPage( viewSettings );
+
+						FusionPageBuilderViewManager.addView( element.get( 'cid' ), view );
+
+						if ( ! _.isUndefined( element.get( 'appendAfter' ) ) ) {
+
+							if ( ! element.get( 'appendAfter' ).next().next().hasClass( 'fusion-builder-next-page' ) ) {
+								element.get( 'appendAfter' ).after( view.render().el );
+							}
+						} else {
+							$( '.fusion_builder_container:last-child' ).after( view.render().el );
+						}
+
+						break;
+
 				}
 			},
 
@@ -1563,6 +1791,11 @@ var FusionPageBuilderEvents = _.extend( {}, Backbone.Events );
 					} );
 
 					shortcode += '[/fusion_builder_container]';
+
+					// Check for next page shortcode
+					if ( $( this ).next().hasClass( 'fusion-builder-next-page' ) ) {
+						shortcode += '[fusion_builder_next_page]';
+					}
 
 				} );
 
@@ -1718,11 +1951,7 @@ var FusionPageBuilderEvents = _.extend( {}, Backbone.Events );
 										optionValue = '';
 									}
 
-									if ( true === generator ) {
-										attributes += ' ' + param + '="' + optionValue + '"';
-									} else if ( '' !== optionValue ) {
-										attributes += ' ' + param + '="' + optionValue + '"';
-									}
+									attributes += ' ' + param + '="' + optionValue + '"';
 								}
 							}
 						}
@@ -1760,6 +1989,7 @@ var FusionPageBuilderEvents = _.extend( {}, Backbone.Events );
 
 				var toggleButton,
 					containerCID,
+					containerModel,
 					that = this;
 
 				if ( event ) {
@@ -1780,7 +2010,7 @@ var FusionPageBuilderEvents = _.extend( {}, Backbone.Events );
 						} );
 						containerModel.attributes.params.admin_toggled = 'yes';
 						jQuery( this ).addClass( 'fusion-builder-section-folded' );
-						jQuery( this ).find( 'span' ).removeClass( 'dashicons-arrow-up' ).addClass( 'dashicons-arrow-down' );
+						jQuery( this ).find( '.fusion-builder-toggle > span' ).removeClass( 'dashicons-arrow-up' ).addClass( 'dashicons-arrow-down' );
 					});
 
 				} else {
@@ -1794,7 +2024,7 @@ var FusionPageBuilderEvents = _.extend( {}, Backbone.Events );
 						} );
 						containerModel.attributes.params.admin_toggled = 'no';
 						jQuery( this ).removeClass( 'fusion-builder-section-folded' );
-						jQuery( this ).find( 'span' ).addClass( 'dashicons-arrow-up' ).removeClass( 'dashicons-arrow-down' );
+						jQuery( this ).find( '.fusion-builder-toggle > span' ).addClass( 'dashicons-arrow-up' ).removeClass( 'dashicons-arrow-down' );
 					});
 				}
 
@@ -2071,6 +2301,9 @@ var FusionPageBuilderEvents = _.extend( {}, Backbone.Events );
 			FusionPageBuilderElements.reset();
 			FusionPageBuilderViewManager.set( 'elementCount', 0 );
 			FusionPageBuilderViewManager.set( 'views', {} );
+
+			// Clear layout
+			$( '#fusion_builder_container' ).html( '' );
 		}
 
 		function fusionBuilderDeactivate( toggle ) {

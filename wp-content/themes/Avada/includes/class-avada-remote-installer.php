@@ -1,4 +1,14 @@
 <?php
+/**
+ * Handles remotely installing premium plugins.
+ *
+ * @author     ThemeFusion
+ * @copyright  (c) Copyright by ThemeFusion
+ * @link       http://theme-fusion.com
+ * @package    Avada
+ * @subpackage Core
+ * @since      5.0.0
+ */
 
 // Do not allow directly accessing this file.
 if ( ! defined( 'ABSPATH' ) ) {
@@ -44,7 +54,7 @@ class Avada_Remote_installer {
 		// Get any existing copy of our transient data.
 		if ( false === ( $saved_nonce = get_transient( 'avada_ri_' . $download . $token ) ) ) {
 			// It wasn't there, so regenerate the data and save the transient.
-			$url      = $this->api_url . '?avada_action=request_download&item_name=' . urlencode( $download ) . '&token=' . $token;
+			$url      = $this->api_url . '?avada_action=request_download&item_name=' . rawurlencode( $download ) . '&token=' . $token;
 			$response = wp_remote_get( $url, array( 'user-agent' => 'avada-user-agent' ) );
 			$body     = wp_remote_retrieve_body( $response );
 
@@ -101,10 +111,13 @@ class Avada_Remote_installer {
 		// Source is not cached, retrieve it and cache it.
 		// Check for token and then install if it's valid.
 		$nonces = $this->_get_nonce( $download,  Avada()->registration->get_token() );
-		if ( false !== $nonces && Avada()->registration->is_registered() ) {
+
+		$registered = ( ! in_array( $download, array( 'Fusion Builder', 'Fusion Core' ), true ) ) ? Avada()->registration->is_registered() : true;
+
+		if ( false !== $nonces && $registered ) {
 			$api_args = array(
 				'avada_action' => 'get_download',
-				'item_name'    => urlencode( $download ),
+				'item_name'    => rawurlencode( $download ),
 				'nonce'        => isset( $nonces[0] ) ? $nonces[0] : '',
 				't'            => isset( $nonces[1] ) ? $nonces[1] : '',
 			);

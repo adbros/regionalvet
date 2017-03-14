@@ -160,6 +160,14 @@ var FusionPageBuilder = FusionPageBuilder || {};
 							elementName = elementName.split( '/' );
 							elementName = elementName.slice( -1 )[0];
 						}
+					} else if ( 'undefined' !== typeof shortcodeAttributes.named && 'image' == shortcodeAttributes.named.type && 'undefined' !== typeof shortcodeContent && shortcodeContent.length ) {
+						elementName = shortcodeContent;
+
+						// If contains backslash, retrieve only last part.
+						if ( -1 !== elementName.indexOf( '/' ) && -1 === elementName.indexOf( '[' ) ) {
+							elementName = elementName.split( '/' );
+							elementName = elementName.slice( -1 )[0];
+						}
 					} else if ( 'undefined' !== typeof shortcodeAttributes.named && 'undefined' !== typeof shortcodeAttributes.named.video && shortcodeAttributes.named.video.length ) {
 						elementName = shortcodeAttributes.named.video;
 					} else if ( 'undefined' !== typeof shortcodeAttributes.named && 'undefined' !== typeof shortcodeContent && shortcodeContent.length ) {

@@ -1,4 +1,14 @@
 <?php
+/**
+ * Handles the Events-Calendar implementation.
+ *
+ * @author     ThemeFusion
+ * @copyright  (c) Copyright by ThemeFusion
+ * @link       http://theme-fusion.com
+ * @package    Avada
+ * @subpackage Core
+ * @since      3.8.7
+ */
 
 // Do not allow directly accessing this file.
 if ( ! defined( 'ABSPATH' ) ) {
@@ -7,8 +17,6 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 /**
  * Handles the Events-Calendar implementation.
- *
- * @since 3.8.7
  */
 class Avada_EventsCalendar {
 
@@ -87,10 +95,10 @@ class Avada_EventsCalendar {
 			<?php the_title( '<h2 class="tribe-events-single-event-title summary entry-title">', '</h2>' ); ?>
 
 			<div class="tribe-events-schedule updated published tribe-clearfix">
-				<?php echo tribe_events_event_schedule_details( $event_id, '<h3>', '</h3>' ); ?>
+				<?php echo wp_kses_post( tribe_events_event_schedule_details( $event_id, '<h3>', '</h3>' ) ); ?>
 				<?php if ( tribe_get_cost() ) : ?>
 					<span class="tribe-events-divider">|</span>
-					<span class="tribe-events-cost"><?php echo tribe_get_cost( null, true ) ?></span>
+					<span class="tribe-events-cost"><?php echo wp_kses_post( tribe_get_cost( null, true ) ) ?></span>
 				<?php endif; ?>
 			</div>
 		</div>

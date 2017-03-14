@@ -1,53 +1,60 @@
 <?php
 
-/**
- * Shortcode class.
- *
- * @package fusion-builder
- * @since 1.0
- */
-class FusionSC_FusionTable {
+if ( fusion_is_element_enabled( 'fusion_table' ) ) {
 
-	/**
-	 * An array of the shortcode arguments.
-	 *
-	 * @static
-	 * @access public
-	 * @since 1.0
-	 * @var array
-	 */
-	public static $args;
+	if ( ! class_exists( 'FusionSC_FusionTable' ) ) {
+		/**
+		 * Shortcode class.
+		 *
+		 * @package fusion-builder
+		 * @since 1.0
+		 */
+		class FusionSC_FusionTable extends Fusion_Element {
 
-	/**
-	 * Constructor.
-	 *
-	 * @access public
-	 * @since 1.0
-	 */
-	public function __construct() {
-		add_shortcode( 'fusion_table', array( $this, 'render' ) );
+			/**
+			 * An array of the shortcode arguments.
+			 *
+			 * @access protected
+			 * @since 1.0
+			 * @var array
+			 */
+			protected $args;
 
-		add_filter( 'fusion_table_content', 'shortcode_unautop' );
-		add_filter( 'fusion_table_content', 'do_shortcode' );
+			/**
+			 * Constructor.
+			 *
+			 * @access public
+			 * @since 1.0
+			 */
+			public function __construct() {
+				parent::__construct();
+				add_shortcode( 'fusion_table', array( $this, 'render' ) );
+
+				add_filter( 'fusion_table_content', 'shortcode_unautop' );
+				add_filter( 'fusion_table_content', 'do_shortcode' );
+			}
+
+			/**
+			 * Render the shortcode
+			 *
+			 * @access public
+			 * @since 1.0
+			 * @param  array  $args    Shortcode parameters.
+			 * @param  string $content Content between shortcode.
+			 * @return string          HTML output.
+			 */
+			public function render( $args, $content = '' ) {
+				return apply_filters(
+					'fusion_table_content',
+					fusion_builder_fix_shortcodes( $content )
+				);
+			}
+		}
 	}
 
-	/**
-	 * Render the shortcode
-	 *
-	 * @access public
-	 * @since 1.0
-	 * @param  array  $args    Shortcode parameters.
-	 * @param  string $content Content between shortcode.
-	 * @return string          HTML output.
-	 */
-	public function render( $args, $content = '' ) {
-		return apply_filters(
-			'fusion_table_content',
-			fusion_builder_fix_shortcodes( $content )
-		);
-	}
+	new FusionSC_FusionTable();
+
 }
-new FusionSC_FusionTable();
 
 /**
  * Map shortcode to Fusion Builder.
@@ -66,8 +73,8 @@ function fusion_element_table() {
 				'description' => esc_attr__( 'Select the table style.', 'fusion-builder' ),
 				'param_name'  => 'fusion_table_type',
 				'value'       => array(
-					esc_attr__( 'Style 1', 'fusion-builder' ) => '1',
-					esc_attr__( 'Style 2', 'fusion-builder' ) => '2',
+					'1' => esc_attr__( 'Style 1', 'fusion-builder' ),
+					'2' => esc_attr__( 'Style 2', 'fusion-builder' ),
 				),
 				'default'          => '1',
 				'remove_from_atts' => true,
@@ -78,12 +85,12 @@ function fusion_element_table() {
 				'description' => esc_attr__( 'Select how many columns to display.', 'fusion-builder' ),
 				'param_name'  => 'fusion_table_columns',
 				'value'       => array(
-					esc_attr__( 'Select Columns', 'fusion-builder' ) => '',
-					esc_attr__( '1 Column', 'fusion-builder' )       => '1',
-					esc_attr__( '2 Column', 'fusion-builder' )       => '2',
-					esc_attr__( '3 Column', 'fusion-builder' )       => '3',
-					esc_attr__( '4 Column', 'fusion-builder' )       => '4',
-					esc_attr__( '5 Column', 'fusion-builder' )       => '5',
+					''  => esc_attr__( 'Select Columns', 'fusion-builder' ),
+					'1' => esc_attr__( '1 Column', 'fusion-builder' ),
+					'2' => esc_attr__( '2 Column', 'fusion-builder' ),
+					'3' => esc_attr__( '3 Column', 'fusion-builder' ),
+					'4' => esc_attr__( '4 Column', 'fusion-builder' ),
+					'5' => esc_attr__( '5 Column', 'fusion-builder' ),
 				),
 				'default'          => '',
 				'remove_from_atts' => true,

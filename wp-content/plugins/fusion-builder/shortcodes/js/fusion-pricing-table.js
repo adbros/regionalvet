@@ -5,30 +5,30 @@
 		// Pricing table. Build pricing table shortcode.
 		FusionPageBuilderApp.pricingTableShortcodeFilter = function( attributes, view ) {
 
-			shortcode     = '';
-			columnCounter = 0;
-			table         = view.$( '.fusion-builder-table' );
+			var shortcode     = '',
+			    columnCounter = 0,
+			    table         = view.$( '.fusion-builder-table' );
 
 			// Table head
 			table.find( 'thead th' ).each( function() {
-				var
-				$thisTh    = $( this ),
-				thCID      = $thisTh.data( 'th-id' ),
-				thTitle    = $thisTh.find( 'input:not(.button-set-value)' ).val(),
-				thStandout = $thisTh.find( '.button-set-value' ).val();
+				var $thisTh    = $( this ),
+				    thCID      = $thisTh.data( 'th-id' ),
+				    thTitle    = $thisTh.find( 'input:not(.button-set-value)' ).val(),
+				    thStandout = $thisTh.find( '.button-set-value' ).val();
+
 				columnCounter++;
 
 				shortcode += '[fusion_pricing_column title="' + thTitle + '" standout="' + thStandout + '"]';
 
 				// Table price
 				table.find( 'tbody .price .td-' + thCID ).each( function() {
-					var $thisPrice = $( this ),
-					    price      = $thisPrice.find( '.price-input' ).val(),
-					    currency   = $thisPrice.find( '.currency-input' ).val(),
-					    currency_position = $thisPrice.find( '.currency-position' ).val(),
-					    time = $thisPrice.find( '.time-input' ).val();
+					var $thisPrice       = $( this ),
+					    price            = $thisPrice.find( '.price-input' ).val(),
+					    currency         = $thisPrice.find( '.currency-input' ).val(),
+					    currencyPosition = $thisPrice.find( '.currency-position' ).val(),
+					    time             = $thisPrice.find( '.time-input' ).val();
 
-					shortcode += '[fusion_pricing_price currency="' + currency + '" currency_position="' + currency_position + '" price="' + price + '" time="' + time + '" ][/fusion_pricing_price]';
+					shortcode += '[fusion_pricing_price currency="' + currency + '" currency_position="' + currencyPosition + '" price="' + price + '" time="' + time + '" ][/fusion_pricing_price]';
 				} );
 
 				// Table rows
@@ -60,7 +60,7 @@
 
 			return attributes;
 
-		}
+		};
 
 	});
 

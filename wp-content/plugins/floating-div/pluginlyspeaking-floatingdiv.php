@@ -4,47 +4,10 @@
  * Plugin URI: http://pluginlyspeaking.com/plugins/floating-div/
  * Description: Create a simple div, floating up and down when the user is scrolling
  * Author: PluginlySpeaking
- * Version: 1.3
+ * Version: 2.0
  * Author URI: http://www.pluginlyspeaking.com
  * License: GPL2
  */
-
-require_once dirname( __FILE__ ) . '/class-tgm-plugin-activation.php';
-
-add_action( 'tgmpa_register', 'floating_div_register_required_plugins' );
-
-function floating_div_register_required_plugins() {
-
-	$plugins = array(
-		array(
-			'name'      => 'CMB2',
-			'slug'      => 'cmb2',
-			'required'  => true,
-		),
-	);
-
-	$config = array(
-		'id'           => 'floating-div',                 // Unique ID for hashing notices for multiple instances of TGMPA.
-		'default_path' => '',                      // Default absolute path to bundled plugins.
-		'menu'         => 'tgmpa-install-plugins', // Menu slug.
-		'capability'   => 'manage_options',    // Capability needed to view plugin install page, should be a capability associated with the parent menu used.
-		'has_notices'  => true,                    // Show admin notices or not.
-		'dismissable'  => false,                    // If false, a user cannot dismiss the nag message.
-		'dismiss_msg'  => 'Without CMB2, FloatingDiv won\'t work.',                      // If 'dismissable' is false, this message will be output at top of nag.
-		'is_automatic' => true,                   // Automatically activate plugins after installation or not.
-		'message'      => '',                      // Message to output right before the plugins table.
-	);
-
-	tgmpa( $plugins, $config );
-}
-
-function add_cmb2_ps() {
-	if ( is_plugin_active( WP_PLUGIN_DIR . '/cmb2/init.php' ) ) {
-		require_once WP_PLUGIN_DIR . '/cmb2/init.php';
-	}
-}
-
-add_action( 'admin_init', 'add_cmb2_ps' );
 
 // Check for the PRO version
 add_action( 'admin_init', 'psfd_free_pro_check' );
@@ -53,7 +16,8 @@ function psfd_free_pro_check() {
 
         function my_admin_notice(){
         echo '<div class="updated">
-                <p><strong>PRO</strong> version is activated.</p>
+                <p>Floating Div <strong>PRO</strong> version is activated.</p>
+				<p>Floating Div <strong>FREE</strong> version is desactivated.</p>
               </div>';
         }
         add_action('admin_notices', 'my_admin_notice');
@@ -62,18 +26,20 @@ function psfd_free_pro_check() {
     }
 }
 
-add_action( 'wp_enqueue_scripts', 'add_floating_div_script' );
+ add_action( 'wp_enqueue_scripts', 'psfd_add_script' );
 
-function add_floating_div_script() {
-	wp_enqueue_style( 'floatingdivcss', plugins_url('css/ps_exp_floating_div.css', __FILE__));
-	wp_enqueue_script("jquery");
+function psfd_add_script() {
+	wp_enqueue_style( 'psfd_css', plugins_url('css/psfd.css', __FILE__));
+	wp_enqueue_script('jquery');	
 }
 
 // Enqueue admin styles
-add_action( 'admin_enqueue_scripts', 'add_floating_div_admin_style' );
-function add_floating_div_admin_style() { wp_enqueue_style( 'adm_floating_div', plugins_url('css/ps_admin_de_style.css', __FILE__)); }
+add_action( 'admin_enqueue_scripts', 'psfd_add_admin_style' );
+function psfd_add_admin_style() {
+	wp_enqueue_style( 'psfd_admin_css', plugins_url('css/psfd_admin.css', __FILE__));
+}
 
-function create_floating_div_type() {
+function psfd_create_type() {
   register_post_type( 'floating_div_ps',
     array(
       'labels' => array(
@@ -89,173 +55,341 @@ function create_floating_div_type() {
   );
 }
 
-add_action( 'init', 'create_floating_div_type' );
+add_action( 'init', 'psfd_create_type' );
 
 
-function floating_div_admin_css() {
+function psfd_admin_css() {
     global $post_type;
     $post_types = array( 
                         'floating_div_ps',
                   );
     if(in_array($post_type, $post_types))
-    echo '<style type="text/css">#edit-slug-box, #post-preview, #view-post-btn{display: none;} div[class*="-disabled-"] .cmb2-metabox-description {color: #00b783;background-image: url(\''.plugins_url('img/disabled.png', __FILE__).'\');background-repeat: no-repeat;padding-left: 30px;display: block;}</style>';
+    echo '<style type="text/css">#edit-slug-box, #post-preview, #view-post-btn{display: none;}</style>';
 }
 
-function remove_view_link_floating_div( $action ) {
+function psfd_remove_view_link( $action ) {
 
     unset ($action['view']);
     return $action;
 }
 
-add_filter( 'post_row_actions', 'remove_view_link_floating_div' );
-add_action( 'admin_head-post-new.php', 'floating_div_admin_css' );
-add_action( 'admin_head-post.php', 'floating_div_admin_css' );
+add_filter( 'post_row_actions', 'psfd_remove_view_link' );
+add_action( 'admin_head-post-new.php', 'psfd_admin_css' );
+add_action( 'admin_head-post.php', 'psfd_admin_css' );
 
-
-function floating_div_metabox() {
-	$prefix = '_floating_div_';
-	
-	$cmb_group = new_cmb2_box( array(
-		'id'           => $prefix . 'metabox',
-		'title'        => __( 'Floating Div', 'floating_div_ps' ),
-		'object_types' => array( 'floating_div_ps' ),
-	) );
-	
-	$cmb_group->add_field( array(
-		'name' => 'Div Content',
-		'desc' => 'Write the content of the div',
-		'id' => $prefix . 'content',
-		'type' => 'wysiwyg'
-	) );
-	
-	$cmb_group->add_field( array(
-		'name'             => 'Collapsible',
-		'desc' => 'Available in the PRO Version',
-		'id'               => 'disabled_1',
-		'type'             => 'select',
-		'show_option_none' => false,
-		'default'          => 'no',
-		'options'          => array(
-			'no' => __( 'No', 'cmb2' ),
-		),
-		'attributes'  => array(
-			'readonly' => 'readonly',
-			'disabled' => 'disabled',
-		),
-	) );
-	
-	$cmb_group->add_field( array(
-		'name'             => 'Div Width',
-		'desc' => 'Available in the PRO Version',
-		'id'               => 'disabled_2',
-		'type'             => 'select',
-		'show_option_none' => false,
-		'default'          => '260px',
-		'options'          => array(
-			'260px'   => __( 'Medium', 'cmb2' ),
-		),
-		'attributes'  => array(
-			'readonly' => 'readonly',
-			'disabled' => 'disabled',
-		),
-	) );
-	
-	$cmb_group->add_field( array(
-		'name'             => 'Rounded Corners',
-		'id'               => $prefix . 'corners',
-		'type'             => 'select',
-		'show_option_none' => false,
-		'default'          => '0px',
-		'options'          => array(
-			'0px' => __( 'No', 'cmb2' ),
-			'25px'   => __( 'Yes', 'cmb2' ),
-		),
-	) );
-	
-	$cmb_group->add_field( array(
-		'name'             => 'Div Position',
-		'desc' => 'Available in the PRO Version',
-		'id'               => 'disabled_3',
-		'type'             => 'select',
-		'show_option_none' => false,
-		'default'          => 'top_right',
-		'options'          => array(
-			'top_right' => __( 'Top Right', 'cmb2' ),
-		),
-		'attributes'  => array(
-			'readonly' => 'readonly',
-			'disabled' => 'disabled',
-		),
-	) );
-	
-	$cmb_group->add_field( array(
-		'name' => 'Margin Top',
-		'desc' => '(in px) ex : 10 for 10px',
-		'id' => $prefix . 'margin_top',
-		'default' => '10',
-		'type' => 'text',
-	) );
-	
-	$cmb_group->add_field( array(
-		'name' => 'Margin Right',
-		'desc' => '(in px) ex : 10 for 10px',
-		'id' => $prefix . 'margin_right',
-		'default' => '10',
-		'type' => 'text',
-	) );
-	
-	$cmb_group->add_field( array(
-		'name' => 'Border Color',
-		'id' => $prefix . 'border_color',
-		'type'    => 'colorpicker',
-		'default' => '#000000',
-	) );
-	
-	$cmb_group->add_field( array(
-		'name' => 'Background Color',
-		'id' => $prefix . 'background_color',
-		'type'    => 'colorpicker',
-		'default' => '#ffffff',
-	) );
-	
-	$cmb_group->add_field( array(
-		'name' => 'Image Background',
-		'desc' => 'Available in the PRO Version',
-		'id'   => 'disabled_4',
-		'type' => 'file',
-		'options' => array(
-			'url' => false
-		),
-		'attributes'  => array(
-			'readonly' => 'readonly',
-			'disabled' => 'disabled',
-		),
-	) );
-	
-	// PRO version
-    $pro_group = new_cmb2_box( array(
-        'id' => $prefix . 'pro_mb',
-        'title' => '<span style="font-weight:400;">Upgrade to <strong>PRO version</strong></span>',
-        'object_types' => array( 'floating_div_ps' ),
-       'context' => 'side',
-        'priority' => 'low',
-        'row_classes' => 'de_hundred de_heading',
-    ));
-	
-	$pro_group->add_field( array(
-		'name' => '',
-			'desc' => '<div><span class="dashicons dashicons-yes"></span> Collapsible option<br/><span class="dashicons dashicons-yes"></span> Container location<br/><span class="dashicons dashicons-yes"></span> Container size<br/><span class="dashicons dashicons-yes"></span> Easy styling<br/><span class="dashicons dashicons-arrow-right"></span> And more...<br/><br/><a style="display:inline-block; background:#33b690; padding:8px 25px 8px; border-bottom:3px solid #33a583; border-radius:3px; color:white;" target="_blank" href="http://pluginlyspeaking.com/plugins/floating-div/">See all PRO features</a><br/><span style="display:block;margin-top:14px; font-size:13px; color:#0073AA; line-height:20px;"><span class="dashicons dashicons-tickets"></span> Code <strong>FD10OFF</strong> (10% OFF)</span></div>',
-			'id'   => $prefix . 'pro_desc',
-			'type' => 'title',
-			'row_classes' => 'de_hundred de_info de_info_side',
-	));
+function psfd_check($cible,$test){
+  if($test == $cible){return ' checked="checked" ';}
 }
 
-add_action( 'cmb2_init', 'floating_div_metabox' );
+add_action('add_meta_boxes','psfd_init_settings_metabox');
 
-add_action( 'manage_floating_div_ps_posts_custom_column' , 'floating_div_custom_columns', 10, 2 );
+function psfd_init_settings_metabox(){
+  add_meta_box('psfd_settings_metabox', 'Settings', 'psfd_add_settings_metabox', 'floating_div_ps', 'side', 'high');
+}
 
-function floating_div_custom_columns( $column, $post_id ) {
+function psfd_add_settings_metabox($post){
+	
+	$prefix = '_floating_div_';
+	$width = get_post_meta($post->ID, $prefix.'width',true);
+	if ($width == "")
+		$width = "260px";
+	?>
+	<table class="pspt_table">
+		<tr>
+			<td colspan="2"><label for="width">Width of content : </label>
+				<select name="width" class="psfd_select_100">
+					<option <?php selected( $width, "160px"); ?> id="psfd_collapsible_yes" value="160px">Tiny</option>
+					<option <?php selected( $width, "210px");  ?> id="psfd_collapsible_no" value="210px">Small</option>
+					<option <?php selected( $width, "260px"); ?> id="psfd_collapsible_yes" value="260px">Medium</option>
+					<option <?php selected( $width, "310px");  ?> id="psfd_collapsible_no" value="310px">Large</option>
+					<option <?php selected( $width, "360px");  ?> id="psfd_collapsible_no" value="360px">Huge</option>
+				</select>
+			</td>
+		</tr>
+	</table>
+	
+	<?php 
+	
+}
+
+add_action('add_meta_boxes','psfd_init_advert_metabox');
+
+function psfd_init_advert_metabox(){
+  add_meta_box('psfd_advert_metabox', 'Upgrade to PRO Version', 'psfd_add_advert_metabox', 'floating_div_ps', 'side', 'low');
+}
+
+function psfd_add_advert_metabox($post){	
+	?>
+	
+	<ul style="list-style-type:disc;padding-left:20px;">
+		<li>Get a collapsible content</li>
+		<li>Container location</li>
+		<li>Use your theme's font</li>
+		<li>Device restriction</li>
+		<li>User restriction</li>
+		<li>And more...</li>
+	</ul>
+	<a style="text-decoration: none;display:inline-block; background:#33b690; padding:8px 25px 8px; border-bottom:3px solid #33a583; border-radius:3px; color:white;" target="_blank" href="http://pluginlyspeaking.com/plugins/floating-div/">See all PRO features</a>
+	<span style="display:block;margin-top:14px; font-size:13px; color:#0073AA; line-height:20px;">
+		<span class="dashicons dashicons-tickets"></span> Code <strong>FD10OFF</strong> (10% OFF)
+	</span>
+	<?php 
+	
+}
+
+
+add_action('add_meta_boxes','psfd_init_content_metabox');
+
+function psfd_init_content_metabox(){
+  add_meta_box('psfd_content_metabox', 'Build your Floating Div', 'psfd_add_content_metabox', 'floating_div_ps', 'normal');
+}
+
+function psfd_add_content_metabox($post){
+	$prefix = '_floating_div_';
+
+	$content = get_post_meta($post->ID, $prefix.'content',true);
+	$position = get_post_meta($post->ID, $prefix.'position',true);
+	$margin_top = get_post_meta($post->ID, $prefix.'margin_top',true);
+	$margin_bottom = get_post_meta($post->ID, $prefix.'margin_bottom',true);
+	$margin_right = get_post_meta($post->ID, $prefix.'margin_right',true);
+	$borders = get_post_meta($post->ID, $prefix.'borders',true);	
+	$border_color = get_post_meta($post->ID, $prefix.'border_color',true);	
+	$corners = get_post_meta($post->ID, $prefix.'corners',true);
+	$background = get_post_meta($post->ID, $prefix.'background',true);
+	$background_color = get_post_meta($post->ID, $prefix.'background_color',true);
+	$image = get_post_meta($post->ID, $prefix.'image',true);
+	
+	$settings = array( 'textarea_name' => 'content' );	
+	wp_editor( htmlspecialchars_decode($content), 'psfd_content', $settings);
+	
+	?>
+	
+	<h2 class="psfd_admin_title">Position</h2>
+	
+		<table class="psfd_table_100">
+			<tr>
+				<td>
+					<label for="position">Choose your content position : </label>
+					
+					<select name="position" class="psfd_select_150p">
+						<option <?php selected( $position, "top_right"); ?> id="psfd_position_top_right" value="top_right">Top Right</option>
+						<option <?php selected( $position, "bottom_right");  ?> id="psfd_position_bottom_right" value="bottom_right">Bottom Right</option>
+					</select>
+				</td>
+				<td>
+					<div id="psfd_div_margin_top" class="psfd_div_margins">
+						<label for="margin_top" class="psfd_label_margins" >Margin Top : </label>
+						<input type="text" id="psfd_margin_top" name="margin_top" placeholder="(in px) ex : 10 for 10px" value="<?php echo $margin_top; ?>" />
+					</div>
+					<div id="psfd_div_margin_bottom" class="psfd_div_margins">
+						<label for="margin_bottom" class="psfd_label_margins" >Margin Bottom : </label>
+						<input type="text" id="psfd_margin_bottom" name="margin_bottom" placeholder="(in px) ex : 10 for 10px" value="<?php echo $margin_bottom; ?>" />
+					</div>
+					<div id="psfd_div_margin_right" class="psfd_div_margins">
+						<label for="margin_right" class="psfd_label_margins" >Margin Right : </label>
+						<input type="text" id="psfd_margin_right" name="margin_right" placeholder="(in px) ex : 10 for 10px" value="<?php echo $margin_right; ?>" />
+					</div>
+				</td>
+			</tr>
+		</table>
+	<h2 class="psfd_admin_title">Style</h2>
+		
+
+		<table class="psfd_table_100_3td">
+			<tr>
+				<td class="psfd_td_label">
+					<label for="corners">Do you want rounded corners ? </label>
+				</td>
+				<td class="psfd_td_thin">
+					<input type="radio" id="corners_yes" name="corners" value="25px" <?php echo (empty($corners)) ? '' : psfd_check($corners,'25px'); ?>> Yes 
+					<input type="radio" id="corners_no" name="corners" value="2px" <?php echo (empty($corners)) ? 'checked="checked"' : psfd_check($corners,'2px'); ?>> No	
+				</td>
+				<td>
+				</td>
+			</tr>
+			<tr>
+				<td class="psfd_td_label">
+					<label for="borders">Do you want a border ? </label>
+				</td>
+				<td class="psfd_td_thin">
+					<input type="radio" id="psfd_borders_yes" name="borders" value="yes" <?php echo (empty($borders)) ? 'checked="checked"' : psfd_check($borders,'yes'); ?>> Yes 
+					<input type="radio" id="psfd_borders_no" name="borders" value="no" <?php echo (empty($borders)) ? '' : psfd_check($borders,'no'); ?>> No
+				</td>
+				<td>
+					<div id="psfd_border_color">
+						<label for="border_color" class="psts_table_31_l" >Border Color : </label>
+						<input id="border_color" name="border_color" type="text" value="<?php echo (empty($border_color)) ? '#000000' : $border_color; ?>" class="psfd_colorpicker" />
+					</div>
+				</td>
+			</tr>
+			<tr>
+				<td class="psfd_td_label" >
+					<label for="background">Choose your background type : </label>
+				</td>
+				<td class="psfd_td_thin">
+					<select name="background" class="psfd_select_150p">
+						<option <?php selected( $background, "color"); ?> id="psfd_background_color" value="color">Color</option>
+						<option <?php selected( $background, "image");  ?> id="psfd_background_image" value="image">Image</option>
+					</select>
+				</td>
+				<td>
+					<div id="psfd_div_background_color">
+						<label for="background_color" class="psfd_label_colorpicker">Background Color : </label>
+						<input id="background_color" name="background_color" type="text" value="<?php echo (empty($background_color)) ? '#FFFFFF' : $background_color; ?>" class="psfd_colorpicker" />
+					</div>
+					
+					<div id="psfd_div_background_image">
+						<label for="image">Background Image : </label>
+						<input type="text" name="image" id="psfd_media_background_image" value="<?php echo $image; ?>" />
+						<input type="button" class="button background-image-button" value="Choose an image" />
+					</div>
+				</td>
+			</tr>
+		</table>
+	
+	
+	<script type="text/javascript">
+		$=jQuery.noConflict();
+		jQuery(document).ready( function($) {
+			if($('#psfd_position_top_right').is(':selected')) {
+				$('#psfd_div_margin_top').show();
+				$('#psfd_div_margin_bottom').hide();
+				$('#psfd_div_margin_right').show();
+			} 
+			if($('#psfd_position_bottom_right').is(':selected')) {
+				$('#psfd_div_margin_top').hide();
+				$('#psfd_div_margin_bottom').show();
+				$('#psfd_div_margin_right').show();
+			} 
+			
+			$('select[name=position]').live('change', function(){
+				if($('#psfd_position_top_right').is(':selected')) {
+					$('#psfd_div_margin_top').show();
+					$('#psfd_div_margin_bottom').hide();
+					$('#psfd_div_margin_right').show();
+				} 
+				if($('#psfd_position_bottom_right').is(':selected')) {
+					$('#psfd_div_margin_top').hide();
+					$('#psfd_div_margin_bottom').show();
+					$('#psfd_div_margin_right').show();
+				} 
+			});
+			
+			if($('#psfd_background_color').is(':selected')) {
+				$('#psfd_div_background_color').show();
+				$('#psfd_div_background_image').hide();
+			} 
+			if($('#psfd_background_image').is(':selected')) {
+				$('#psfd_div_background_color').hide();
+				$('#psfd_div_background_image').show();
+			} 
+			
+			$('select[name=background]').live('change', function(){
+				if($('#psfd_background_color').is(':selected')) {
+					$('#psfd_div_background_color').show();
+					$('#psfd_div_background_image').hide();
+				} 
+				if($('#psfd_background_image').is(':selected')) {
+					$('#psfd_div_background_color').hide();
+					$('#psfd_div_background_image').show();
+				} 
+			});
+			
+			if($('#psfd_borders_yes').is(':checked')) {
+				$('#psfd_border_color').show();
+			} 
+			if($('#psfd_borders_no').is(':checked')) {
+				$('#psfd_border_color').hide();
+			} 
+			
+			$('input[name=borders]').live('change', function(){
+				if($('#psfd_borders_yes').is(':checked')) {
+					$('#psfd_border_color').show();
+				} 
+				if($('#psfd_borders_no').is(':checked')) {
+					$('#psfd_border_color').hide();
+				} 
+			});
+		});
+	</script>
+	
+	<?php
+
+}
+
+function psfd_colorpicker_enqueue() {
+    global $typenow;
+    if( $typenow == 'floating_div_ps' ) {
+        wp_enqueue_style( 'wp-color-picker' );
+        wp_enqueue_script( 'psfd_colorpicker', plugin_dir_url( __FILE__ ) . 'js/psfd_colorpicker.js', array( 'wp-color-picker' ) );
+    }
+}
+add_action( 'admin_enqueue_scripts', 'psfd_colorpicker_enqueue' );	
+
+add_action( 'admin_enqueue_scripts', 'psfd_image_file_enqueue' );
+function psfd_image_file_enqueue() {
+	global $typenow;
+	if( $typenow == 'floating_div_ps' ) {
+		wp_enqueue_media();
+ 
+		// Registers and enqueues the required javascript.
+		wp_register_script( 'psfd_media_cover-js', plugin_dir_url( __FILE__ ) . 'js/psfd_media_cover.js', array( 'jquery' ) );
+		wp_localize_script( 'psfd_media_cover-js', 'psfd_media_cover_js',
+			array(
+				'title' => __( 'Choose or Upload an image'),
+				'button' => __( 'Use this file'),
+			)
+		);
+		wp_enqueue_script( 'psfd_media_cover-js' );
+	}
+}
+add_action('save_post','psfd_save_metabox');
+function psfd_save_metabox($post_id){
+	
+	$prefix = '_floating_div_';
+	
+	if(isset($_POST['width'])){
+		update_post_meta($post_id, $prefix.'width', sanitize_text_field($_POST['width']));
+	}
+
+	if(isset($_POST['content'])){
+		update_post_meta($post_id, $prefix.'content', $_POST['content']);
+	}	
+	if(isset($_POST['position'])){
+		update_post_meta($post_id, $prefix.'position', sanitize_text_field($_POST['position']));
+	}	
+	if(isset($_POST['margin_top'])){
+		update_post_meta($post_id, $prefix.'margin_top', sanitize_text_field($_POST['margin_top']));
+	}
+	if(isset($_POST['margin_bottom'])){
+		update_post_meta($post_id, $prefix.'margin_bottom', sanitize_text_field($_POST['margin_bottom']));
+	}
+	if(isset($_POST['margin_right'])){
+		update_post_meta($post_id, $prefix.'margin_right', sanitize_text_field($_POST['margin_right']));
+	}
+	if(isset($_POST['corners'])){
+		update_post_meta($post_id, $prefix.'corners', sanitize_text_field($_POST['corners']));
+	}
+	if(isset($_POST['borders'])){
+		update_post_meta($post_id, $prefix.'borders', sanitize_text_field($_POST['borders']));
+	}
+	if(isset($_POST['border_color'])){
+		update_post_meta($post_id, $prefix.'border_color', sanitize_text_field($_POST['border_color']));
+	}
+	if(isset($_POST['background'])){
+		update_post_meta($post_id, $prefix.'background', sanitize_text_field($_POST['background']));
+	}
+	if(isset($_POST['background_color'])){
+		update_post_meta($post_id, $prefix.'background_color', sanitize_text_field($_POST['background_color']));
+	}
+	if(isset($_POST['image'])){
+		update_post_meta($post_id, $prefix.'image', sanitize_text_field($_POST['image']));
+	}
+}
+
+add_action( 'manage_floating_div_ps_posts_custom_column' , 'psfd_custom_columns_pro', 10, 2 );
+
+function psfd_custom_columns_pro( $column, $post_id ) {
     switch ( $column ) {
 	case 'shortcode' :
 		global $post;
@@ -268,14 +402,14 @@ function floating_div_custom_columns( $column, $post_id ) {
     }
 }
 
-function add_floating_div_columns($columns) {
+function psfd_add_columns($columns) {
     return array_merge($columns, 
               array('shortcode' => __('Shortcode'),
                     ));
 }
-add_filter('manage_floating_div_ps_posts_columns' , 'add_floating_div_columns');
+add_filter('manage_floating_div_ps_posts_columns' , 'psfd_add_columns');
 
-function ps_get_wysiwyg_output( $meta_key, $post_id = 0 ) {
+function psfd_get_wysiwyg_output_pro( $meta_key, $post_id = 0 ) {
     global $wp_embed;
 
     $post_id = $post_id ? $post_id : get_the_id();
@@ -289,7 +423,7 @@ function ps_get_wysiwyg_output( $meta_key, $post_id = 0 ) {
     return $content;
 }
 
-function floating_div_shortcode($atts) {
+function psfd_shortcode($atts) {
 	extract(shortcode_atts(array(
 		"name" => ''
 	), $atts));
@@ -304,29 +438,86 @@ function floating_div_shortcode($atts) {
 	{
 	$prefix = '_floating_div_';
     $div_content = get_post_meta( get_the_id(), $prefix . 'content', true );
+	$div_width = get_post_meta( get_the_id(), $prefix . 'width', true );
+	if ($div_width == '')
+		$div_width = '260px';
+	$div_width_class = "psfd_width_".$div_width;
+
 	$div_corners = get_post_meta( get_the_id(), $prefix . 'corners', true );
-	$div_margin_top = get_post_meta( get_the_id(), $prefix . 'margin_top', true );
+	$div_position = get_post_meta( get_the_id(), $prefix . 'position', true );
+	if ($div_position == '')
+		$div_position = 'top_right';
+	
+	if ($div_position == 'top_right')
+	{
+		$div_margin_top = get_post_meta( get_the_id(), $prefix . 'margin_top', true );
+		if ($div_margin_top == "")
+			$div_margin_top = 0;
+	}
+	if ($div_position == 'bottom_right')
+	{
+		$div_margin_bottom = get_post_meta( get_the_id(), $prefix . 'margin_bottom', true );
+		if ($div_margin_bottom == "")
+			$div_margin_bottom = 0;
+	}	
+
 	$div_margin_right = get_post_meta( get_the_id(), $prefix . 'margin_right', true );
+	if ($div_margin_right == "")
+		$div_margin_right = 0;
+	
+	$div_borders = get_post_meta( get_the_id(), $prefix.'borders',true);
 	$div_border_color = get_post_meta( get_the_id(), $prefix . 'border_color', true );
-	$div_background_color = get_post_meta( get_the_id(), $prefix . 'background_color', true );
-	$background = 'background:'.$div_background_color.'';
+	
+	if($div_borders == "yes" || $div_borders == "")
+		$border_class = 'border:2px solid '.$div_border_color.'';
+	if($div_borders == "no")
+		$border_class = "";
+
+	$div_background = get_post_meta( get_the_id(), $prefix . 'background', true );
+
+	if ($div_background == '')
+		$div_background = 'color';
+	$background = 'background:#FFFFFF';
+	if ($div_background == 'color')
+	{
+		$div_background_color = get_post_meta( get_the_id(), $prefix . 'background_color', true );
+		$background = 'background:'.$div_background_color.'';
+	}
+	
+	if ($div_background == 'image')
+	{
+		$div_image = get_post_meta( get_the_id(), $prefix.'image',true);
+		$background = 'background-image:url('.esc_attr($div_image).')';
+	}
 		
 	$postid = get_the_ID();
 	
 	$css_position = '';
-	$css_position .= 'right:'.$div_margin_right.'px;';   
-	$css_position .= 'top:'.$div_margin_top.'px;';  
+	switch ($div_position) {
+    case 'top_right':
+		$css_position .= 'right:'.$div_margin_right.'px;';   
+		$css_position .= 'top:'.$div_margin_top.'px;';  
+        break;
+	case 'bottom_right':
+		$css_position .= 'right:'.$div_margin_right.'px;';   
+		$css_position .= 'bottom:'.$div_margin_bottom.'px;';  
+        break;
+    default:
+		$css_position .= 'right:10px;';    
+		$css_position .= 'top:10px;';  
+	}
 	
 	$output = '';
 
-	$output .= '<div id="floatdiv_'.$postid.'" class="exp_floatdiv_content_pro" style="'.$css_position.';width:260px;border:2px solid '.$div_border_color.';border-radius:'.esc_attr( $div_corners).';'.$background.';">';
-	$output .= ''. ps_get_wysiwyg_output( $prefix . 'content', get_the_ID() )  .'';
+	$output .= '<div id="floatdiv_'.$postid.'" class="exp_floatdiv_content_pro '.$div_width_class.'" style="'.$css_position.';border:2px solid '.$div_border_color.';border-radius:'.esc_attr( $div_corners).';'.$background.';">';
+	$output .= ''. psfd_get_wysiwyg_output_pro( $prefix . 'content', get_the_ID() )  .'';
 	$output .= '</div>';
+	
 	}
 	endforeach; wp_reset_query();
-	return $output;	
+	return $output;
 }
-add_shortcode( 'floating_div_ps', 'floating_div_shortcode' );
+add_shortcode( 'floating_div_ps', 'psfd_shortcode' );
 
 
 	

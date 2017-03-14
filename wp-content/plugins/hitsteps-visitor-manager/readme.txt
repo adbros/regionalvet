@@ -2,8 +2,8 @@
 Contributors: hitsteps
 Tags: analytics, stats, statistics, chat, live, stat, visitor, monitor, heatmap, visitors, track, counter
 Requires at least: 2.7
-Tested up to: 4.7.2
-Stable tag: 5.35
+Tested up to: 4.7.3
+Stable tag: 5.36
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 Donate link: http://www.hitsteps.com/features.php#price

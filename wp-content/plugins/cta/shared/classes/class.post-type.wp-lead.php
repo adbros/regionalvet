@@ -435,6 +435,30 @@ if ( !class_exists('Inbound_Leads') ) {
 			return $array;
 		}
 
+
+		/**
+		* Get an array of all lead lists
+		*
+		* @returns ARRAY of lead lists with term id as key and list name as value
+		*/
+		public static function get_lead_tags_as_array() {
+			self::register_taxonomies();
+
+			$array = array();
+
+			$args = array(
+				'hide_empty' => false,
+			);
+
+			$terms = get_terms('lead-tags', $args);
+
+			foreach ( $terms as $term	) {
+				$array[$term->term_id] = $term->name;
+			}
+
+			return $array;
+		}
+
 		/**
 		*  Get lead list infomration
 		*
@@ -652,7 +676,7 @@ if ( !class_exists('Inbound_Leads') ) {
 				$double_optin_list_id = get_option('list-double-optin-list-id', '');
 			} else {
 				$settings = Inbound_Options_API::get_option('inbound-pro', 'settings', array());
-				$double_optin_list_id = $settings['leads']['list-double-optin-list-id'];
+				$double_optin_list_id = $inbound_settings['leads']['list-double-optin-list-id'];
 			}
 
 			// If the list doesn't already exist, create it
@@ -690,7 +714,7 @@ if ( !class_exists('Inbound_Leads') ) {
 			if(!defined('INBOUND_PRO_CURRENT_VERSION')){
 				$double_optin_page_id = get_option('list-double-optin-page-id', '');
 			}else{
-				$double_optin_page_id = $inbound_settings['leads']['list-double-optin-page-id'];
+				$double_optin_page_id = (isset($inbound_settings['leads']['list-double-optin-page-id'])) ?  $inbound_settings['leads']['list-double-optin-page-id'] : '';
 			}
 
 			return $double_optin_page_id;

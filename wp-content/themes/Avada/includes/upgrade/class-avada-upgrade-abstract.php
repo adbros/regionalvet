@@ -1,4 +1,13 @@
 <?php
+/**
+ * Upgrades Handler.
+ *
+ * @author     ThemeFusion
+ * @copyright  (c) Copyright by ThemeFusion
+ * @link       http://theme-fusion.com
+ * @package    Avada
+ * @subpackage Core
+ */
 
 // Do not allow directly accessing this file.
 if ( ! defined( 'ABSPATH' ) ) {
@@ -23,12 +32,13 @@ abstract class Avada_Upgrade_Abstract {
 	protected $version = '';
 
 	/**
-	 * An array of all avada options.
+	 * The option name as it was in the currently update version..
 	 *
 	 * @access protected
-	 * @var array
+	 * @since 5.1.0
+	 * @var string
 	 */
-	protected $avada_options;
+	protected $option_name = '';
 
 	/**
 	 * The theme version as stored in the db.
@@ -42,8 +52,9 @@ abstract class Avada_Upgrade_Abstract {
 	 * The class constructor.
 	 *
 	 * @access public
+	 * @param bool $forced Whether we're forcing this update or not.
 	 */
-	public function __construct() {
+	public function __construct( $forced = false ) {
 
 		// Set the database_theme_version.
 		$this->database_theme_version = get_option( 'avada_version', true );
@@ -60,8 +71,7 @@ abstract class Avada_Upgrade_Abstract {
 		// Make sure the current version is properly formatted.
 		$this->version = Avada_Helper::normalize_version( $this->version );
 
-		// Set the options.
-		$this->avada_options = get_option( Avada::get_option_name(), array() );
+		$this->option_name = $this->set_option_name( $this->version );
 
 		// Trigger the migration.
 		$this->migration_process();
@@ -69,6 +79,33 @@ abstract class Avada_Upgrade_Abstract {
 		// Set the version.
 		$this->update_version();
 
+		// Reset the patcher caches.
+		if ( ! $forced ) {
+			$this->reset_patcher();
+		}
+
+	}
+
+	/**
+	 * Set the currect option name, how it is stored in the db of the currently converted version.
+	 *
+	 * @access protected
+	 * @since 5.1.0
+	 * @param string $version The theme version.
+	 */
+	protected function set_option_name( $version ) {
+
+		if ( version_compare( $this->database_theme_version, '5.1.0', '>=' ) ) {
+			$option_name = 'fusion_options';
+		} elseif ( version_compare( $version, '4.0.0', '<' ) ) {
+			$option_name = 'Avada_options';
+		} elseif ( version_compare( $version, '5.1.0', '<=' ) ) {
+			$option_name = 'avada_theme_options';
+		} else {
+			$option_name = 'fusion_options';
+		}
+
+		return $option_name;
 	}
 
 	/**
@@ -94,6 +131,18 @@ abstract class Avada_Upgrade_Abstract {
 		}
 
 		update_option( 'avada_version', $this->version );
+
+	}
+
+	/**
+	 * Resets patcher.
+	 *
+	 * @access protected
+	 * @since 5.0.0
+	 */
+	protected function reset_patcher() {
+		delete_site_option( 'fusion_applied_patches' );
+		delete_site_transient( Fusion_Patcher_Checker::$transient_name );
 
 	}
 

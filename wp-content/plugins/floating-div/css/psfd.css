@@ -1,0 +1,91 @@
+.exp_floatdiv_content_pro {
+	position:fixed;
+	padding:10px;
+	z-index:100;
+	background-repeat: no-repeat;
+	background-position: center center;
+	background-size:100% 100%;
+	font-family:"Trebuchet MS",Verdana,sans-serif;
+}
+
+/* Desktops */
+@media only screen and (min-width : 769px) {
+
+	.psfd_width_160px{
+		width:160px;
+	}
+
+	.psfd_width_210px{
+		width:210px;
+	}
+
+	.psfd_width_260px{
+		width:260px;
+	}
+
+	.psfd_width_310px{
+		width:310px;
+	}
+
+	.psfd_width_360px{
+		width:360px;
+	}
+
+}
+
+/* Small Devices, Tablets */
+@media only screen and (min-width : 481px) and (max-width : 768px) {
+	.exp_floatdiv_content_pro {
+		font-size:80%;
+	}
+	
+	.psfd_width_160px{
+		width:110px;
+	}
+
+	.psfd_width_210px{
+		width:140px;
+	}
+
+	.psfd_width_260px{
+		width:170px;
+	}
+
+	.psfd_width_310px{
+		width:200px;
+	}
+
+	.psfd_width_360px{
+		width:230px;
+	}
+
+}
+
+/* Extra Small Devices, Phones */
+@media only screen and (max-width : 480px) {
+	
+	.exp_floatdiv_content_pro {
+		font-size:60%;
+	}
+	
+	.psfd_width_160px{
+		width:60px;
+	}
+
+	.psfd_width_210px{
+		width:90px;
+	}
+
+	.psfd_width_260px{
+		width:110px;
+	}
+
+	.psfd_width_310px{
+		width:130px;
+	}
+
+	.psfd_width_360px{
+		width:160px;
+	}
+
+}

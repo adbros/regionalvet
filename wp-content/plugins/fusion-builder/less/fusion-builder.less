@@ -15,7 +15,9 @@
   .fusion-builder-section-header,
   .fusion-page-layouts .fusion-page-layout .fusion-layout-buttons a:hover,
   .fusion-tabs-menu,
-  .fusion_builder_template_button_save {
+  .fusion_builder_template_button_save,
+  .bootstrap-datetimepicker-widget li.picker-switch.accordion-toggle,
+  .bootstrap-datetimepicker-widget td.active {
     background-color: @color1;
     color: @color2
   }
@@ -40,7 +42,10 @@
   .fusion-page-builder-controls a:hover,
   .fusion-tabs-menu li.current,
   .fusion-tabs-menu li:first-child,
-  .fusion-tabs-menu li:hover {
+  .fusion-tabs-menu li:hover,
+  .fusion-builder-layout-buttons-history.fusion-history-has-step,
+  .fusion-builder-layout-buttons-undo.fusion-history-has-step,
+  .fusion-builder-layout-buttons-redo.fusion-history-has-step {
     background-color: @color3;
   }
   #fusion-page-builder-tabs .fusion-builder-button:after,
@@ -55,6 +60,14 @@
   }
   .fusion-tabs-menu li.inactive {
     background-color: transparent;
+  }
+  .bootstrap-datetimepicker-widget td.active,
+  .bootstrap-datetimepicker-widget td span.active {
+    background-image: linear-gradient(to bottom,@color1,@color3);
+  }
+  .bootstrap-datetimepicker-widget li.picker-switch.accordion-toggle:hover i,
+  .bootstrap-datetimepicker-widget a {
+    color: @color3 !important;
   }
 }
 //////////////////
@@ -75,7 +88,8 @@
     font-weight: 600;
   }
 }
-.fusion-builder-upload-button {
+.fusion-builder-upload-button,
+.fusion-builder-link-button {
   margin-top: 1em !important;
   float: right;
   height: 36px;
@@ -116,11 +130,7 @@
   position: relative;
   vertical-align: top;
   &.fusion-builder-section-folded {
-    .fusion-builder-section-content,
-    .fusion-builder-settings-container,
-    .fusion-builder-clone-container,
-    .fusion-builder-remove,
-    .fusion-builder-save-element {
+    .fusion-builder-section-content {
         display: none;
     }
   }
@@ -150,7 +160,7 @@
   height: 100%;
   position: fixed;
   z-index: 9999;
-  background-color: rgba(0, 0, 0, 0.4);
+  background-color: rgba(0, 0, 0, 0.8);
   top: 0;
   left: 0;
 }
@@ -721,6 +731,16 @@
     width: 28%;
     padding: 4.5em 2.5% 0;
   }
+  .fusion-tabs {
+      float: right;
+      width: 67%;
+      padding-top: 1.5em;
+      margin-top: 1.5em;
+      margin-bottom: 0;
+      .fusion-builder-module-settings {
+          width: 100%;
+      }
+  }
 }
 // Select Field Styling
 .fusion-builder-option {
@@ -938,6 +958,12 @@
       padding: 0;
       line-height: 1.4;
     }
+
+    &:hover,
+    &:active {
+        color: #333;
+        background: #f5f5f5;
+    }
   }
   .ui-buttonset {
     .ui-state-active {
@@ -948,6 +974,12 @@
       color: #fff;
       text-shadow: 0 -1px 0 rgba(0, 0, 0, 0.25);
       border-color: #0064cd #0064cd #003f81;
+    }
+    .ui-state-active[data-value="no"], .ui-state-active[data-value="off"]
+    , .ui-state-active[data-value="false"] {
+      background-color: #23282d !important;
+      border-color: #767676 !important;
+      color: #eee;
     }
   }
   .fusion-builder-column-layouts {
@@ -967,6 +999,22 @@
         border: 1px dashed #666;
       }
     }
+  }
+  .radio-image-set {
+    .ui-button {
+      padding: 3px 3px 0px;
+      margin-right: 4px;
+      margin-bottom: 4px;
+    }
+  }
+  .fusion-builder-link-field {
+    max-width: 82%;
+  }
+  .fusion-builder-link-button {
+    margin-top: 0 !important;
+    height: 34px;
+    top: 1px;
+    position: relative;
   }
 }
 #fusion-builder-layouts-demos {
@@ -1232,6 +1280,7 @@
   position: relative;
   vertical-align: top;
   width: 100%;
+  float: left;
 }
 .fusion-builder-section-header {
   background: #0091cd;
@@ -1396,6 +1445,17 @@
   .fusiona-plus {
     position: relative;
     top: 1px;
+  }
+}
+.fusion-builder-next-page {
+  .fusion-builder-section-header {
+    background: #dbdbdb;
+    .fusion-builder-next-page-title {
+      margin: 12px 0 0;
+      position: absolute;
+      width: 94%;
+      text-align: center;
+    }
   }
 }
 .fusion-builder-controls {
@@ -1580,7 +1640,7 @@
     border-right: 1px solid #ddd;
     border-bottom: 1px solid #ddd;
     color: #999;
-    background: #fff;
+    background: #f7f7f7;
     font-size: 16px;
     padding: 8px;
     text-decoration: none;
@@ -1892,7 +1952,8 @@
   overflow-x: hidden;
   .selected-element,
   .selected-element:hover {
-    color: #D54E21;
+      color: #ffffff;
+      background-color: #278AB7;
   }
 }
 .icon_preview {
@@ -1918,7 +1979,6 @@
 }
 .fusion-builder-sortable-options {
   li {
-    overflow: hidden;
     box-sizing: border-box;
     width: 100%;
     border: 1px solid #ddd;
@@ -2116,7 +2176,7 @@
     height: 16px;
     width: 16px;
     border: 1px solid #ddd;
-    background: #fff;
+    background: #f7f7f7;
     color: #999;
     font-size: 16px;
     padding: 8px;
@@ -2243,7 +2303,7 @@
 input[type=text] {
   &.fusion-builder-section-name {
     background-color: transparent;
-    border: 1px solid rgb(0, 145, 205);
+    border: 1px solid transparent;
     margin: 9px 0 0 25px;
     z-index: 999;
     box-shadow: none;
@@ -3232,7 +3292,7 @@ tr {
 // Fusion Builder media dialog
 .fusion-builder-media-dialog {
 	.media-sidebar {
-		.setting,
+    .media-types.media-types-required-info,
 		.compat-attachment-fields,
 		.attachment-display-settings > * {
     		display: none;
@@ -3241,4 +3301,34 @@ tr {
 			display: block;
 		}
 	}
+}
+.fusion-multiple-image-container {
+  float: left;
+  width: 100%;
+  margin-top: 15px;
+  .fusion-multi-image {
+    position: relative;
+    padding: 4px;
+    border: 1px solid #f5f5f5;
+    margin-right: 6px;
+    margin-bottom: 6px;
+    float: left;
+    width: 100px;
+    height: 100px;
+    line-height: 100px;
+    text-align: center;
+    img {
+      max-width: 100%;
+      max-height: 100%;
+      vertical-align: middle;
+    }
+    .fusion-multi-image-remove {
+      position: absolute;
+      top: -1px;
+      right: -1px;
+      border: 1px solid #f5f5f5;
+      background: #fff;
+      cursor: pointer;
+    }
+  }
 }

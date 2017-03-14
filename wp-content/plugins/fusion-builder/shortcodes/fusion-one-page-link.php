@@ -1,92 +1,107 @@
 <?php
 
-/**
- * Shortcode class.
- *
- * @package fusion-builder
- * @since 1.0
- */
-class FusionSC_OnePageTextLink {
+if ( fusion_is_element_enabled( 'fusion_one_page_text_link' ) ) {
 
-	/**
-	 * An array of the shortcode arguments.
-	 *
-	 * @static
-	 * @access public
-	 * @since 1.0
-	 * @var array
-	 */
-	public static $args;
+	if ( ! class_exists( 'FusionSC_OnePageTextLink' ) ) {
+		/**
+		 * Shortcode class.
+		 *
+		 * @package fusion-builder
+		 * @since 1.0
+		 */
+		class FusionSC_OnePageTextLink extends Fusion_Element {
 
-	/**
-	 * Constructor.
-	 *
-	 * @access public
-	 * @since 1.0
-	 */
-	public function __construct() {
+			/**
+			 * An array of the shortcode arguments.
+			 *
+			 * @access protected
+			 * @since 1.0
+			 * @var array
+			 */
+			protected $args;
 
-		add_filter( 'fusion_attr_one-page-text-link-shortcode', array( $this, 'attr' ) );
+			/**
+			 * Constructor.
+			 *
+			 * @access public
+			 * @since 1.0
+			 */
+			public function __construct() {
+				parent::__construct();
+				add_filter( 'fusion_attr_one-page-text-link-shortcode', array( $this, 'attr' ) );
+				add_shortcode( 'fusion_one_page_text_link', array( $this, 'render' ) );
 
-		add_shortcode( 'fusion_one_page_text_link', array( $this, 'render' ) );
+			}
 
-	}
+			/**
+			 * Render the shortcode
+			 *
+			 * @access public
+			 * @since 1.0
+			 * @param  array  $args    Shortcode parameters.
+			 * @param  string $content Content between shortcode.
+			 * @return string          HTML output.
+			 */
+			public function render( $args, $content = '' ) {
 
-	/**
-	 * Render the shortcode
-	 *
-	 * @access public
-	 * @since 1.0
-	 * @param  array  $args    Shortcode parameters.
-	 * @param  string $content Content between shortcode.
-	 * @return string          HTML output.
-	 */
-	public function render( $args, $content = '' ) {
+				$defaults = FusionBuilder::set_shortcode_defaults(
+					array(
+						'class' => '',
+						'id'    => '',
+						'link'  => '',
+					), $args
+				);
 
-		$defaults = FusionBuilder::set_shortcode_defaults(
-			array(
-				'class' => '',
-				'id'    => '',
-				'link'  => '',
-			), $args
-		);
+				extract( $defaults );
 
-		extract( $defaults );
+				$this->args = $defaults;
 
-		self::$args = $defaults;
+				return '<a ' . FusionBuilder::attributes( 'one-page-text-link-shortcode' ) . '>' . do_shortcode( $content ) . '</a>';
 
-		return '<a ' . FusionBuilder::attributes( 'one-page-text-link-shortcode' ) . '>' . do_shortcode( $content ) . '</a>';
+			}
 
-	}
+			/**
+			 * Builds the attributes array.
+			 *
+			 * @access public
+			 * @since 1.0
+			 * @return array
+			 */
+			public function attr() {
 
-	/**
-	 * Builds the attributes array.
-	 *
-	 * @access public
-	 * @since 1.0
-	 * @return array
-	 */
-	public function attr() {
+				$attr = array(
+					'class' => 'fusion-one-page-text-link',
+				);
 
-		$attr = array(
-			'class' => 'fusion-one-page-text-link',
-		);
+				if ( $this->args['class'] ) {
+					$attr['class'] .= ' ' . $this->args['class'];
+				}
 
-		if ( self::$args['class'] ) {
-			$attr['class'] .= ' ' . self::$args['class'];
+				if ( $this->args['id'] ) {
+					$attr['id'] = $this->args['id'];
+				}
+
+				$attr['href'] = $this->args['link'];
+
+				return $attr;
+
+			}
+
+			/**
+			 * Sets the necessary scripts.
+			 *
+			 * @access public
+			 * @since 1.1
+			 * @return void
+			 */
+			public function add_scripts() {
+			}
 		}
-
-		if ( self::$args['id'] ) {
-			$attr['id'] = self::$args['id'];
-		}
-
-		$attr['href'] = self::$args['link'];
-
-		return $attr;
-
 	}
+
+	new FusionSC_OnePageTextLink();
+
 }
-new FusionSC_OnePageTextLink();
 
 /**
  * Map shortcode to Fusion Builder

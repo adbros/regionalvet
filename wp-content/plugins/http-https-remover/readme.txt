@@ -3,8 +3,8 @@ Contributors: condacore
 Donate link: https://www.paypal.me/MariusBolik
 Tags: http, https, mixed content
 Requires at least: 1.2.0
-Tested up to: 4.7
-Stable tag: 1.3.1
+Tested up to: 4.7.2
+Stable tag: 1.4
 License: GPLv3
 License URI: http://www.gnu.org/licenses/gpl-3.0.html
 
@@ -18,7 +18,11 @@ A fix for mixed content! This Plugin removes HTTP and HTTPS protocols from all l
 - No Setup needed<br>
 - Compatible with Visual Composer
 - Fixes Google Fonts issues
+- Speeds up your website
 
+= Only install this Plugin if your web server supports https =
+
+**Note: I changed the way how „HTTP / HTTPS Remover“ is working. It doesn’t remove http and https from links in source code anymore. Now it converts all links to https!**
 
 **Mixed content** occurs when initial HTML is loaded over a secure HTTPS connection, but other resources (such as images, videos, stylesheets, scripts) are loaded over an insecure HTTP connection. This is called mixed content because both HTTP and HTTPS content are being loaded to display the same page, and the initial request was secure over HTTPS. Modern browsers display warnings about this type of content to indicate to the user that this page contains insecure resources.
 
@@ -28,11 +32,14 @@ Your users are counting on you to protect them when they visit your website. It 
 = Example =
 
 Without Plugin:
-`"http://domain.com/script.js"`
-`"https://domain.com/script.js"` 
+`src="http://domain.com/script01.js"
+src="https://domain.com/script02.js"
+src="//domain.com/script03.js"`
 
 With Plugin:
-`"//domain.com/script.js"` 
+`src="https://domain.com/script01.js"
+src="https://domain.com/script02.js"
+src="https://domain.com/script03.js"`
 
 For more infos take a look at the screenshot.
 
@@ -66,6 +73,10 @@ Please purge/clear cache for the changes to take effect!
 1. The Sourcecode of the Website will look like this!
 
 == Changelog ==
+= 1.4 (03/02/17) =
+* Finally fixed srcset Problems
+* Changed the working method of the Plugin
+* Some other bugfixes
 = 1.3.1 (01/13/17) =
 * Added support for srcset tag
 = 1.3 (01/07/17) =

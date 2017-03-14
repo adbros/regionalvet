@@ -1,128 +1,133 @@
 <?php
 
-/**
- * Shortcode class.
- *
- * @package fusion-builder
- * @since 1.0
- */
-class FusionSC_Soundcloud {
+if ( fusion_is_element_enabled( 'fusion_soundcloud' ) ) {
 
-	/**
-	 * An array of the shortcode arguments.
-	 *
-	 * @static
-	 * @access public
-	 * @since 1.0
-	 * @var array
-	 */
-	public static $args;
+	if ( ! class_exists( 'FusionSC_Soundcloud' ) ) {
+		/**
+		 * Shortcode class.
+		 *
+		 * @package fusion-builder
+		 * @since 1.0
+		 */
+		class FusionSC_Soundcloud extends Fusion_Element {
 
-	/**
-	 * Constructor.
-	 *
-	 * @access public
-	 * @since 1.0
-	 */
-	public function __construct() {
+			/**
+			 * An array of the shortcode arguments.
+			 *
+			 * @access protected
+			 * @since 1.0
+			 * @var array
+			 */
+			protected $args;
 
-		add_filter( 'fusion_attr_soundcloud-shortcode', array( $this, 'attr' ) );
-		add_shortcode( 'fusion_soundcloud', array( $this, 'render' ) );
-
-	}
-
-	/**
-	 * Render the shortcode
-	 *
-	 * @access public
-	 * @since 1.0
-	 * @param  array  $args    Shortcode parameters.
-	 * @param  string $content Content between shortcode.
-	 * @return string          HTML output.
-	 */
-	public function render( $args, $content = '' ) {
-
-		$defaults = FusionBuilder::set_shortcode_defaults(
-			array(
-				'hide_on_mobile' => fusion_builder_default_visibility( 'string' ),
-				'class'          => 'fusion-soundcloud',
-				'id'             => '',
-				'auto_play'      => 'no',
-				'color'          => 'ff7700',
-				'comments'       => 'yes',
-				'height'         => '',
-				'layout'         => 'classic',
-				'show_related'   => 'no',
-				'show_reposts'   => 'no',
-				'show_user'      => 'yes',
-				'url'            => '',
-				'width'          => '100%',
-			), $args
-		);
-
-		$defaults['width']  = FusionBuilder::validate_shortcode_attr_value( $defaults['width'], 'px' );
-		$defaults['height'] = FusionBuilder::validate_shortcode_attr_value( $defaults['height'], 'px' );
-
-		extract( $defaults );
-
-		self::$args = $defaults;
-
-		$autoplay = ( 'yes' === $auto_play ) ? 'true' : 'false';
-		$comments = ( 'yes' === $comments ) ? 'true' : 'false';
-
-		if ( 'visual' === $layout ) {
-			$visual = 'true';
-
-			if ( ! $height ) {
-				$height = '450';
+			/**
+			 * Constructor.
+			 *
+			 * @access public
+			 * @since 1.0
+			 */
+			public function __construct() {
+				parent::__construct();
+				add_filter( 'fusion_attr_soundcloud-shortcode', array( $this, 'attr' ) );
+				add_shortcode( 'fusion_soundcloud', array( $this, 'render' ) );
 			}
-		} else {
-			$visual = 'false';
 
-			if ( ! $height ) {
-				$height = '166';
+			/**
+			 * Render the shortcode
+			 *
+			 * @access public
+			 * @since 1.0
+			 * @param  array  $args    Shortcode parameters.
+			 * @param  string $content Content between shortcode.
+			 * @return string          HTML output.
+			 */
+			public function render( $args, $content = '' ) {
+
+				$defaults = FusionBuilder::set_shortcode_defaults(
+					array(
+						'hide_on_mobile' => fusion_builder_default_visibility( 'string' ),
+						'class'          => 'fusion-soundcloud',
+						'id'             => '',
+						'auto_play'      => 'no',
+						'color'          => 'ff7700',
+						'comments'       => 'yes',
+						'height'         => '',
+						'layout'         => 'classic',
+						'show_related'   => 'no',
+						'show_reposts'   => 'no',
+						'show_user'      => 'yes',
+						'url'            => '',
+						'width'          => '100%',
+					), $args
+				);
+
+				$defaults['width']  = FusionBuilder::validate_shortcode_attr_value( $defaults['width'], 'px' );
+				$defaults['height'] = FusionBuilder::validate_shortcode_attr_value( $defaults['height'], 'px' );
+
+				extract( $defaults );
+
+				$this->args = $defaults;
+
+				$autoplay = ( 'yes' === $auto_play ) ? 'true' : 'false';
+				$comments = ( 'yes' === $comments ) ? 'true' : 'false';
+
+				if ( 'visual' === $layout ) {
+					$visual = 'true';
+
+					if ( ! $height ) {
+						$height = '450';
+					}
+				} else {
+					$visual = 'false';
+
+					if ( ! $height ) {
+						$height = '166';
+					}
+				}
+
+				$height = (int) $height;
+
+				$show_related = ( 'yes' === $show_related ) ? 'false' : 'true';
+				$show_reposts = ( 'yes' === $show_reposts ) ? 'true' : 'false';
+				$show_user    = ( 'yes' === $show_user ) ? 'true' : 'false';
+
+				if ( $color ) {
+					$color = str_replace( '#', '', $color );
+				}
+
+				return '<div ' . FusionBuilder::attributes( 'soundcloud-shortcode' ) . '><iframe scrolling="no" frameborder="no" width="' . $width . '" height="' . $height . '" src="https://w.soundcloud.com/player/?url=' . $url . '&amp;auto_play=' . $autoplay . '&amp;hide_related=' . $show_related . '&amp;show_comments=' . $comments . '&amp;show_user=' . $show_user . '&amp;show_reposts=' . $show_reposts . '&amp;visual=' . $visual . '&amp;color=' . $color . '" title="soundcloud"></iframe></div>';
+			}
+
+			/**
+			 * Builds the attributes array.
+			 *
+			 * @access public
+			 * @since 1.0
+			 * @return array
+			 */
+			public function attr() {
+
+				$attr = array();
+
+				if ( $this->args['class'] ) {
+					$attr['class'] = $this->args['class'];
+				}
+
+				if ( $this->args['id'] ) {
+					$attr['id'] = $this->args['id'];
+				}
+
+				$attr = fusion_builder_visibility_atts( $this->args['hide_on_mobile'], $attr );
+
+				return $attr;
+
 			}
 		}
-
-		$height = (int) $height;
-
-		$show_related = ( 'yes' === $show_related ) ? 'false' : 'true';
-		$show_reposts = ( 'yes' === $show_reposts ) ? 'true' : 'false';
-		$show_user    = ( 'yes' === $show_user ) ? 'true' : 'false';
-
-		if ( $color ) {
-			$color = str_replace( '#', '', $color );
-		}
-
-		return '<div ' . FusionBuilder::attributes( 'soundcloud-shortcode' ) . '><iframe scrolling="no" frameborder="no" width="' . $width . '" height="' . $height . '" src="https://w.soundcloud.com/player/?url=' . $url . '&amp;auto_play=' . $autoplay . '&amp;hide_related=' . $show_related . '&amp;show_comments=' . $comments . '&amp;show_user=' . $show_user . '&amp;show_reposts=' . $show_reposts . '&amp;visual=' . $visual . '&amp;color=' . $color . '"></iframe></div>';
 	}
 
-	/**
-	 * Builds the attributes array.
-	 *
-	 * @access public
-	 * @since 1.0
-	 * @return array
-	 */
-	public function attr() {
+	new FusionSC_Soundcloud();
 
-		$attr = array();
-
-		if ( self::$args['class'] ) {
-			$attr['class'] = self::$args['class'];
-		}
-
-		if ( self::$args['id'] ) {
-			$attr['id'] = self::$args['id'];
-		}
-
-		$attr = fusion_builder_visibility_atts( self::$args['hide_on_mobile'], $attr );
-
-		return $attr;
-
-	}
 }
-new FusionSC_Soundcloud();
 
 /**
  * Map shortcode to Fusion Builder.
@@ -134,7 +139,7 @@ function fusion_element_soundcloud() {
 		'name'       => esc_attr__( 'Soundcloud', 'fusion-builder' ),
 		'shortcode'  => 'fusion_soundcloud',
 		'icon'       => 'fusiona-soundcloud',
-		'preview'    => FUSION_BUILDER_PLUGIN_DIR . 'js/previews/fusion-soundcloud-preview.php',
+		'preview'    => FUSION_BUILDER_PLUGIN_DIR . 'inc/templates/previews/fusion-soundcloud-preview.php',
 		'preview_id' => 'fusion-builder-block-module-soundcloud-preview-template',
 		'params'     => array(
 			array(
@@ -150,8 +155,8 @@ function fusion_element_soundcloud() {
 				'description' => esc_attr__( 'Choose the layout of the soundcloud embed.', 'fusion-builder' ),
 				'param_name'  => 'layout',
 				'value'       => array(
-					esc_attr__( 'Classic', 'fusion-builder' ) => 'classic',
-					esc_attr__( 'Visual', 'fusion-builder' )  => 'visual',
+					'classic' => esc_attr__( 'Classic', 'fusion-builder' ),
+					'visual'  => esc_attr__( 'Visual', 'fusion-builder' ),
 				),
 				'default'     => 'classic',
 			),
@@ -161,8 +166,8 @@ function fusion_element_soundcloud() {
 				'description' => esc_attr__( 'Choose to display comments.', 'fusion-builder' ),
 				'param_name'  => 'comments',
 				'value'       => array(
-					esc_attr__( 'Yes', 'fusion-builder' ) => 'yes',
-					esc_attr__( 'No', 'fusion-builder' )  => 'no',
+					'yes' => esc_attr__( 'Yes', 'fusion-builder' ),
+					'no'  => esc_attr__( 'No', 'fusion-builder' ),
 				),
 				'default'     => 'yes',
 			),
@@ -172,8 +177,8 @@ function fusion_element_soundcloud() {
 				'description' => esc_attr__( 'Choose to display related items.', 'fusion-builder' ),
 				'param_name'  => 'show_related',
 				'value'       => array(
-					esc_attr__( 'Yes', 'fusion-builder' ) => 'yes',
-					esc_attr__( 'No', 'fusion-builder' )  => 'no',
+					'yes' => esc_attr__( 'Yes', 'fusion-builder' ),
+					'no'  => esc_attr__( 'No', 'fusion-builder' ),
 				),
 				'default'     => 'no',
 			),
@@ -183,8 +188,8 @@ function fusion_element_soundcloud() {
 				'description' => esc_attr__( 'Choose to display the user who posted the item.', 'fusion-builder' ),
 				'param_name'  => 'show_user',
 				'value'       => array(
-					esc_attr__( 'Yes', 'fusion-builder' ) => 'yes',
-					esc_attr__( 'No', 'fusion-builder' )  => 'no',
+					'yes' => esc_attr__( 'Yes', 'fusion-builder' ),
+					'no'  => esc_attr__( 'No', 'fusion-builder' ),
 				),
 				'default'     => 'yes',
 			),
@@ -194,8 +199,8 @@ function fusion_element_soundcloud() {
 				'description' => esc_attr__( 'Choose to autoplay the track.', 'fusion-builder' ),
 				'param_name'  => 'auto_play',
 				'value'       => array(
-					esc_attr__( 'Yes', 'fusion-builder' ) => 'yes',
-					esc_attr__( 'No', 'fusion-builder' )  => 'no',
+					'yes' => esc_attr__( 'Yes', 'fusion-builder' ),
+					'no'  => esc_attr__( 'No', 'fusion-builder' ),
 				),
 				'default'     => 'no',
 			),
